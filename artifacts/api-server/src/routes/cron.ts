@@ -7,10 +7,17 @@ const router = Router();
 
 function cronAuth(req: Request, res: Response, next: NextFunction) {
   const secret = process.env.CRON_SECRET;
+  const isProd = process.env.NODE_ENV === "production";
+
   if (!secret) {
+    if (isProd) {
+      res.status(401).json({ error: "CRON_SECRET must be set in production. Add it in Settings." });
+      return;
+    }
     next();
     return;
   }
+
   const provided = req.headers["x-cron-secret"];
   if (provided !== secret) {
     res.status(401).json({ error: "Unauthorized. Set x-cron-secret header." });
