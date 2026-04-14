@@ -3,20 +3,28 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Third Place — Coffee Shop OS API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: venues
+    description: Venue management
+  - name: visits
+    description: Visit logging
+  - name: discovery
+    description: Discovery queue management
+  - name: cron
+    description: Cron/background job triggers
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +32,346 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /venues:
+    get:
+      operationId: listVenues
+      tags: [venues]
+      summary: List all venues
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, closed, temporarily-closed, unverified, all]
+          required: false
+        - name: category
+          in: query
+          schema:
+            type: string
+          required: false
+        - name: neighborhood
+          in: query
+          schema:
+            type: string
+          required: false
+        - name: search
+          in: query
+          schema:
+            type: string
+          required: false
+      responses:
+        "200":
+          description: List of venues
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Venue"
+
+  /venues/random:
+    get:
+      operationId: getRandomVenue
+      tags: [venues]
+      summary: Get a random venue matching filters
+      parameters:
+        - name: neighborhood
+          in: query
+          schema:
+            type: string
+          required: false
+        - name: mode
+          in: query
+          schema:
+            type: string
+            enum: [coffee-only, coffee-food, lunch-spot]
+          required: true
+        - name: excludeId
+          in: query
+          schema:
+            type: integer
+          required: false
+      responses:
+        "200":
+          description: A random venue
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+        "404":
+          description: No venues match filters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /venues/stats:
+    get:
+      operationId: getVenueStats
+      tags: [venues]
+      summary: Get overall venue statistics
+      responses:
+        "200":
+          description: Venue stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VenueStats"
+
+  /venues/{id}:
+    get:
+      operationId: getVenue
+      tags: [venues]
+      summary: Get a single venue by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Venue detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VenueDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateVenue
+      tags: [venues]
+      summary: Update venue fields
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVenueBody"
+      responses:
+        "200":
+          description: Updated venue
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+
+  /venues/{id}/visits:
+    get:
+      operationId: getVenueVisits
+      tags: [venues]
+      summary: Get all visits for a specific venue
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of visits for this venue
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Visit"
+
+  /visits:
+    get:
+      operationId: listVisits
+      tags: [visits]
+      summary: List all visits, newest first
+      parameters:
+        - name: venueId
+          in: query
+          schema:
+            type: integer
+          required: false
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          required: false
+      responses:
+        "200":
+          description: List of visits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VisitWithVenue"
+    post:
+      operationId: createVisit
+      tags: [visits]
+      summary: Log a visit to a venue
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateVisitBody"
+      responses:
+        "201":
+          description: Visit created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Visit"
+
+  /visits/{id}:
+    get:
+      operationId: getVisit
+      tags: [visits]
+      summary: Get a single visit by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Visit detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitWithVenue"
+    patch:
+      operationId: updateVisit
+      tags: [visits]
+      summary: Update a visit's journal fields
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateVisitBody"
+      responses:
+        "200":
+          description: Updated visit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Visit"
+
+  /visits/stats:
+    get:
+      operationId: getVisitStats
+      tags: [visits]
+      summary: Get visit statistics (total visits, unique venues visited)
+      responses:
+        "200":
+          description: Visit stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisitStats"
+
+  /discovery:
+    get:
+      operationId: listDiscovery
+      tags: [discovery]
+      summary: List discovery queue items
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected, all]
+          required: false
+      responses:
+        "200":
+          description: Discovery queue items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DiscoveryItem"
+
+  /discovery/{id}/approve:
+    post:
+      operationId: approveDiscovery
+      tags: [discovery]
+      summary: Approve a discovery item and add it to venues
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Approved and venue created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Venue"
+
+  /discovery/{id}/reject:
+    post:
+      operationId: rejectDiscovery
+      tags: [discovery]
+      summary: Reject a discovery item
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Rejected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DiscoveryItem"
+
+  /cron/discover:
+    post:
+      operationId: runDiscovery
+      tags: [cron]
+      summary: Manually trigger the venue discovery job (Brave Search)
+      responses:
+        "200":
+          description: Discovery job result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CronResult"
+
+  /cron/validate:
+    post:
+      operationId: runValidation
+      tags: [cron]
+      summary: Manually trigger venue validation (Google Places)
+      responses:
+        "200":
+          description: Validation job result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CronResult"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +382,257 @@ components:
       required:
         - status
 
+    Venue:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        neighborhood:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        category:
+          type: string
+          enum: [coffee-only, coffee-food, coworking, sandwich-lunch]
+        tags:
+          type: array
+          items:
+            type: string
+        workRating:
+          type: integer
+          nullable: true
+        coffeeRating:
+          type: integer
+          nullable: true
+        hours:
+          type: string
+          nullable: true
+        mapsUrl:
+          type: string
+          nullable: true
+        sourceUrl:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum: [active, closed, temporarily-closed, unverified]
+        dateAdded:
+          type: string
+          nullable: true
+        visitCount:
+          type: integer
+        lastVisited:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+      required:
+        - id
+        - name
+        - category
+        - tags
+        - status
+        - visitCount
+
+    VenueDetail:
+      allOf:
+        - $ref: "#/components/schemas/Venue"
+        - type: object
+          properties:
+            visits:
+              type: array
+              items:
+                $ref: "#/components/schemas/Visit"
+          required:
+            - visits
+
+    UpdateVenueBody:
+      type: object
+      properties:
+        name:
+          type: string
+        neighborhood:
+          type: string
+        address:
+          type: string
+        hours:
+          type: string
+        mapsUrl:
+          type: string
+        sourceUrl:
+          type: string
+        workRating:
+          type: integer
+        coffeeRating:
+          type: integer
+        status:
+          type: string
+          enum: [active, closed, temporarily-closed, unverified]
+        tags:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+
+    Visit:
+      type: object
+      properties:
+        id:
+          type: integer
+        venueId:
+          type: integer
+        visitedAt:
+          type: string
+        workedOn:
+          type: string
+          nullable: true
+        accomplished:
+          type: string
+          nullable: true
+        whoSaw:
+          type: string
+          nullable: true
+        coffeeNotes:
+          type: string
+          nullable: true
+      required:
+        - id
+        - venueId
+        - visitedAt
+
+    VisitWithVenue:
+      allOf:
+        - $ref: "#/components/schemas/Visit"
+        - type: object
+          properties:
+            venue:
+              $ref: "#/components/schemas/Venue"
+          required:
+            - venue
+
+    CreateVisitBody:
+      type: object
+      properties:
+        venueId:
+          type: integer
+        workedOn:
+          type: string
+        accomplished:
+          type: string
+        whoSaw:
+          type: string
+        coffeeNotes:
+          type: string
+      required:
+        - venueId
+
+    UpdateVisitBody:
+      type: object
+      properties:
+        workedOn:
+          type: string
+        accomplished:
+          type: string
+        whoSaw:
+          type: string
+        coffeeNotes:
+          type: string
+
+    VenueStats:
+      type: object
+      properties:
+        total:
+          type: integer
+        active:
+          type: integer
+        closed:
+          type: integer
+        unverified:
+          type: integer
+        byCategory:
+          type: object
+          additionalProperties:
+            type: integer
+        recentlyAdded:
+          type: array
+          items:
+            $ref: "#/components/schemas/Venue"
+      required:
+        - total
+        - active
+        - closed
+        - unverified
+        - byCategory
+        - recentlyAdded
+
+    VisitStats:
+      type: object
+      properties:
+        totalVisits:
+          type: integer
+        uniqueVenues:
+          type: integer
+      required:
+        - totalVisits
+        - uniqueVenues
+
+    DiscoveryItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        address:
+          type: string
+          nullable: true
+        neighborhood:
+          type: string
+          nullable: true
+        sourceUrl:
+          type: string
+          nullable: true
+        discoveredAt:
+          type: string
+        status:
+          type: string
+          enum: [pending, approved, rejected]
+      required:
+        - id
+        - name
+        - discoveredAt
+        - status
+
+    CronResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        found:
+          type: integer
+          nullable: true
+        validated:
+          type: integer
+          nullable: true
+        updated:
+          type: integer
+          nullable: true
+      required:
+        - success
+        - message
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error

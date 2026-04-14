@@ -1,0 +1,104 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--color-base);
+  --color-foreground: var(--color-ink);
+  --color-border: var(--color-border-theme);
+  
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-ink);
+  --color-card-border: var(--color-border-theme);
+
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-ink);
+  --color-popover-border: var(--color-border-theme);
+
+  --color-primary: var(--color-accent);
+  --color-primary-foreground: var(--color-surface);
+  
+  --color-secondary: var(--color-sage-light);
+  --color-secondary-foreground: var(--color-sage);
+  
+  --color-muted: var(--color-sage-light);
+  --color-muted-foreground: var(--color-ink-muted);
+
+  --color-accent-theme: var(--color-accent);
+  --color-accent-foreground: var(--color-surface);
+
+  --color-destructive: #9b2c2c;
+  --color-destructive-foreground: var(--color-surface);
+
+  --color-input: var(--color-border-theme);
+  --color-ring: var(--color-accent);
+
+  --font-sans: 'Literata', serif;
+  --font-serif: 'Literata', serif;
+  --font-display: 'Fraunces', serif;
+
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+}
+
+:root {
+  --color-base: #F5F0E8;
+  --color-surface: #FDFBF7;
+  --color-ink: #2C1810;
+  --color-ink-muted: #6B5C53;
+  --color-accent: #C4704B;
+  --color-accent-hover: #A85A38;
+  --color-sage: #8B9D83;
+  --color-sage-light: #E8EDE5;
+  --color-border-theme: #E2DCD4;
+  
+  --radius: 6px;
+}
+
+.dark {
+  --color-base: #2C1810;
+  --color-surface: #3A2318;
+  --color-ink: #FDFBF7;
+  --color-ink-muted: #E2DCD4;
+  --color-accent: #C4704B;
+  --color-accent-hover: #E29B7F;
+  --color-sage: #A9C2A0;
+  --color-sage-light: #4A5B45;
+  --color-border-theme: #4A3525;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply font-sans antialiased bg-background text-foreground selection:bg-primary/20;
+    /* Add subtle grain */
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+/* Custom scrollbar for webkit */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-theme);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-muted);
+}
