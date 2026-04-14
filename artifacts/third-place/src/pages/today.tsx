@@ -25,21 +25,6 @@ const MODES: { value: GetRandomVenueMode, label: string }[] = [
 export default function Today() {
   const [bgPhoto] = useState(() => CAFÉ_PHOTOS[Math.floor(Math.random() * CAFÉ_PHOTOS.length)]);
 
-  useEffect(() => {
-    const base = import.meta.env.BASE_URL;
-    const url = `${base}photos/${bgPhoto}.jpg`;
-    document.body.style.backgroundImage = `url(${url})`;
-    document.body.style.backgroundSize = "cover";
-    document.body.style.backgroundPosition = "center";
-    document.body.style.backgroundAttachment = "fixed";
-    return () => {
-      document.body.style.backgroundImage = "";
-      document.body.style.backgroundSize = "";
-      document.body.style.backgroundPosition = "";
-      document.body.style.backgroundAttachment = "";
-    };
-  }, [bgPhoto]);
-
   const [neighborhood, setNeighborhood] = useState("Anywhere in SF");
   const [mode, setMode] = useState<GetRandomVenueMode>("coffee-only");
   
@@ -106,6 +91,15 @@ export default function Today() {
   const handleSkipJournal = () => {
     setAppState("randomizer");
   };
+
+  useEffect(() => {
+    const base = import.meta.env.BASE_URL;
+    const url = `${base}photos/${bgPhoto}.jpg`;
+    document.documentElement.style.setProperty("--page-photo", `url(${JSON.stringify(url)})`);
+    return () => {
+      document.documentElement.style.removeProperty("--page-photo");
+    };
+  }, [bgPhoto]);
 
   return (
     <div className="p-4 pt-8 h-full flex flex-col max-w-md mx-auto relative min-h-full">
