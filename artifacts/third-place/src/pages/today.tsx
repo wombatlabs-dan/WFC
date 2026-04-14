@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Navigation, ExternalLink, Coffee, Check, ArrowRight, X } from "lucide-react";
 
 const CAFÉ_PHOTOS = [
-  "plants-light", "industrial-interior", "bright-modern", "work-mode",
-  "espresso-counter", "the-barista", "cafe-scene", "window-seat",
+  "andytown-plants", "wrecking-ball-interior", "sightglass-hayes", "linea-caffe-desk",
+  "ritual-espresso-bar", "saint-frank-barista", "mission-cafe-scene", "nopa-window-seat",
   "hanging-ferns", "vintage-counter",
 ];
 
