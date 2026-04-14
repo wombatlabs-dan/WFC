@@ -1,11 +1,25 @@
-import { Router } from "express";
+import { Router, Request, Response, NextFunction } from "express";
 import { db } from "@workspace/db";
 import { venuesTable, discoveryQueueTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
 
 const router = Router();
 
-router.post("/cron/discover", async (req, res) => {
+function cronAuth(req: Request, res: Response, next: NextFunction) {
+  const secret = process.env.CRON_SECRET;
+  if (!secret) {
+    next();
+    return;
+  }
+  const provided = req.headers["x-cron-secret"];
+  if (provided !== secret) {
+    res.status(401).json({ error: "Unauthorized. Set x-cron-secret header." });
+    return;
+  }
+  next();
+}
+
+router.post("/cron/discover", cronAuth, async (req, res) => {
   try {
     const apiKey = process.env.BRAVE_SEARCH_API_KEY;
 
@@ -99,7 +113,7 @@ router.post("/cron/discover", async (req, res) => {
   }
 });
 
-router.post("/cron/validate", async (req, res) => {
+router.post("/cron/validate", cronAuth, async (req, res) => {
   try {
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
 

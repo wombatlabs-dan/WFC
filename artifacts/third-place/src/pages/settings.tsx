@@ -2,15 +2,44 @@ import { useRunDiscovery, useRunValidation, useHealthCheck } from "@workspace/ap
 import { Settings as SettingsIcon, Database, CheckCircle2, AlertCircle, RefreshCw, Key } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
+interface KeyStatus {
+  set: boolean;
+  masked: string | null;
+}
+interface SettingsStatus {
+  googlePlacesApiKey: KeyStatus;
+  braveSearchApiKey: KeyStatus;
+}
+
 function useSettingsStatus() {
   return useQuery({
     queryKey: ["settings-status"],
     queryFn: async () => {
       const res = await fetch("/api/settings/status");
       if (!res.ok) throw new Error("Failed to fetch settings status");
-      return res.json() as Promise<{ googlePlacesApiKey: boolean; braveSearchApiKey: boolean }>;
+      return res.json() as Promise<SettingsStatus>;
     },
   });
+}
+
+function KeyRow({ label, keyStatus }: { label: string; keyStatus?: KeyStatus }) {
+  return (
+    <div className="py-2 border-b border-border-theme/50 last:border-0">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs font-mono text-ink">{label}</span>
+        {keyStatus?.set ? (
+          <span className="flex items-center gap-1 text-xs text-sage font-medium"><CheckCircle2 className="w-3.5 h-3.5" /> Set</span>
+        ) : (
+          <span className="flex items-center gap-1 text-xs text-ink-muted"><AlertCircle className="w-3.5 h-3.5" /> Not set</span>
+        )}
+      </div>
+      {keyStatus?.set && keyStatus.masked && (
+        <div className="font-mono text-xs bg-base px-3 py-1.5 rounded border border-border-theme text-ink-muted tracking-wider truncate">
+          {keyStatus.masked}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function Settings() {
@@ -105,29 +134,14 @@ export default function Settings() {
         </section>
 
         <section className="bg-surface border border-border-theme rounded-lg p-4">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-4 flex items-center gap-1.5">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1 flex items-center gap-1.5">
             <Key className="w-4 h-4" /> API Keys
           </h2>
-          
-          <p className="text-xs text-ink-muted mb-3">Configure these keys as server environment variables to enable discovery and validation.</p>
+          <p className="text-xs text-ink-muted mb-4">Set these as server-side environment variables. Values are never exposed in the browser.</p>
 
-          <div className="space-y-3">
-            <div className="flex items-center justify-between py-2 border-b border-border-theme/50">
-              <span className="text-xs font-mono text-ink">GOOGLE_PLACES_API_KEY</span>
-              {keyStatus?.googlePlacesApiKey ? (
-                <span className="flex items-center gap-1 text-xs text-sage font-medium"><CheckCircle2 className="w-3.5 h-3.5" /> Set</span>
-              ) : (
-                <span className="flex items-center gap-1 text-xs text-ink-muted"><AlertCircle className="w-3.5 h-3.5" /> Not set</span>
-              )}
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <span className="text-xs font-mono text-ink">BRAVE_SEARCH_API_KEY</span>
-              {keyStatus?.braveSearchApiKey ? (
-                <span className="flex items-center gap-1 text-xs text-sage font-medium"><CheckCircle2 className="w-3.5 h-3.5" /> Set</span>
-              ) : (
-                <span className="flex items-center gap-1 text-xs text-ink-muted"><AlertCircle className="w-3.5 h-3.5" /> Not set</span>
-              )}
-            </div>
+          <div>
+            <KeyRow label="GOOGLE_PLACES_API_KEY" keyStatus={keyStatus?.googlePlacesApiKey} />
+            <KeyRow label="BRAVE_SEARCH_API_KEY" keyStatus={keyStatus?.braveSearchApiKey} />
           </div>
         </section>
       </div>

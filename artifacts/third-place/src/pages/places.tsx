@@ -1,8 +1,17 @@
 import { useState } from "react";
-import { useListVenues } from "@workspace/api-client-react";
+import { useListVenues, Venue } from "@workspace/api-client-react";
 import { VenueCard } from "@/components/venues/VenueCard";
 import { useLocation } from "wouter";
 import { Search } from "lucide-react";
+
+const CATEGORY_LABELS: Record<string, string> = {
+  "coffee-only": "Coffee Only",
+  "coffee-food": "Coffee + Food",
+  "coworking": "Coworking",
+  "sandwich-lunch": "Lunch Spots",
+};
+
+const CATEGORY_ORDER = ["coffee-only", "coffee-food", "coworking", "sandwich-lunch"];
 
 export default function Places() {
   const [search, setSearch] = useState("");
@@ -11,6 +20,21 @@ export default function Places() {
 
   const activeVenues = venues?.filter(v => v.status === "active" || v.status === "unverified") || [];
   const closedVenues = venues?.filter(v => v.status === "closed" || v.status === "temporarily-closed") || [];
+
+  const byCategory = CATEGORY_ORDER.reduce<Record<string, Venue[]>>((acc, cat) => {
+    acc[cat] = activeVenues.filter(v => v.category === cat);
+    return acc;
+  }, {});
+
+  const isSearching = search.length > 0;
+
+  function VenueRow({ venue }: { venue: Venue }) {
+    return (
+      <div onClick={() => navigate(`/places/${venue.id}`)} className="block cursor-pointer">
+        <VenueCard venue={venue} />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 pt-6 h-full flex flex-col">
@@ -31,32 +55,43 @@ export default function Places() {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-4 pb-4">
+      <div className="flex-1 overflow-y-auto pb-4">
         {isLoading ? (
           <div className="text-center py-10 text-ink-muted">Loading places...</div>
         ) : venues?.length === 0 ? (
           <div className="text-center py-10 text-ink-muted">No places found.</div>
+        ) : isSearching ? (
+          <div className="space-y-4">
+            {activeVenues.map(venue => <VenueRow key={venue.id} venue={venue} />)}
+          </div>
         ) : (
-          <>
-            {activeVenues.map(venue => (
-              <div key={venue.id} onClick={() => navigate(`/places/${venue.id}`)} className="block cursor-pointer">
-                <VenueCard venue={venue} />
-              </div>
-            ))}
-            
+          <div className="space-y-8">
+            {CATEGORY_ORDER.map(cat => {
+              const group = byCategory[cat];
+              if (!group || group.length === 0) return null;
+              return (
+                <section key={cat}>
+                  <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-3">
+                    {CATEGORY_LABELS[cat]} <span className="text-border-theme font-normal">({group.length})</span>
+                  </h2>
+                  <div className="space-y-4">
+                    {group.map(venue => <VenueRow key={venue.id} venue={venue} />)}
+                  </div>
+                </section>
+              );
+            })}
+
             {closedVenues.length > 0 && (
-              <div className="mt-8 pt-6 border-t border-border-theme">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-4">Closed & Temporarily Closed</h3>
+              <section>
+                <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-3">
+                  Closed & Temporarily Closed <span className="text-border-theme font-normal">({closedVenues.length})</span>
+                </h2>
                 <div className="space-y-4">
-                  {closedVenues.map(venue => (
-                    <div key={venue.id} onClick={() => navigate(`/places/${venue.id}`)} className="block cursor-pointer">
-                      <VenueCard venue={venue} />
-                    </div>
-                  ))}
+                  {closedVenues.map(venue => <VenueRow key={venue.id} venue={venue} />)}
                 </div>
-              </div>
+              </section>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>
