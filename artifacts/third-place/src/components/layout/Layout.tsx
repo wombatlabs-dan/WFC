@@ -7,7 +7,7 @@ interface LayoutProps {
   children: ReactNode;
 }
 
-const OVERLAY = "rgba(245, 240, 232, 0.78)";
+const OVERLAY = "rgba(245, 240, 232, 0.68)";
 
 export function Layout({ children }: LayoutProps) {
   const { bgSrc } = useBackground();

@@ -95,7 +95,7 @@ export default function Today() {
             exit={{ opacity: 0, y: -20 }}
             className="flex-1 flex flex-col"
           >
-            <div className="mb-8">
+            <div className="mb-8 bg-white/30 backdrop-blur-md rounded-2xl p-6 border border-white/40 shadow-lg">
               <h1 className="font-display text-3xl text-ink mb-6 text-center">Where to today?</h1>
               
               <div className="space-y-4">
@@ -103,7 +103,7 @@ export default function Today() {
                   <select 
                     value={neighborhood}
                     onChange={(e) => setNeighborhood(e.target.value)}
-                    className="w-full appearance-none bg-surface border border-border-theme text-ink px-4 py-3 rounded-md font-sans focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent shadow-sm text-center font-medium"
+                    className="w-full appearance-none bg-white/60 border border-white/50 text-ink px-4 py-3 rounded-md font-sans focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent shadow-sm text-center font-medium"
                   >
                     {NEIGHBORHOODS.map(n => (
                       <option key={n} value={n}>{n}</option>
@@ -113,12 +113,12 @@ export default function Today() {
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none border-l border-b border-ink-muted w-2.5 h-2.5 -rotate-45 transform translate-y-[-70%]" />
                 </div>
 
-                <div className="flex p-1 bg-surface border border-border-theme rounded-md shadow-sm">
+                <div className="flex p-1 bg-white/40 border border-white/50 rounded-md shadow-sm">
                   {MODES.map(m => (
                     <button
                       key={m.value}
                       onClick={() => setMode(m.value)}
-                      className={`flex-1 py-2 text-xs font-medium rounded transition-colors ${mode === m.value ? 'bg-sage-light text-sage border border-sage/20' : 'text-ink-muted hover:text-ink'}`}
+                      className={`flex-1 py-2 text-xs font-medium rounded transition-colors ${mode === m.value ? 'bg-white/80 text-ink border border-white/60 shadow-sm' : 'text-ink-muted hover:text-ink'}`}
                     >
                       {m.label}
                     </button>
