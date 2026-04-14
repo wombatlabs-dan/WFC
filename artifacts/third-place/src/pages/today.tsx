@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useBackground } from "@/contexts/background";
 import { useGetRandomVenue, useCreateVisit, useUpdateVisit, GetRandomVenueMode, getGetRandomVenueQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
@@ -24,6 +25,13 @@ const MODES: { value: GetRandomVenueMode, label: string }[] = [
 
 export default function Today() {
   const [bgPhoto] = useState(() => CAFÉ_PHOTOS[Math.floor(Math.random() * CAFÉ_PHOTOS.length)]);
+  const { setBgSrc } = useBackground();
+
+  useEffect(() => {
+    const base = import.meta.env.BASE_URL;
+    setBgSrc(`${base}photos/${bgPhoto}.jpg`);
+    return () => setBgSrc(null);
+  }, [bgPhoto, setBgSrc]);
 
   const [neighborhood, setNeighborhood] = useState("Anywhere in SF");
   const [mode, setMode] = useState<GetRandomVenueMode>("coffee-only");
