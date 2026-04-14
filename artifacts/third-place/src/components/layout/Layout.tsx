@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { useRoute } from "wouter";
 import { BottomNav } from "./BottomNav";
 import { useBackground } from "@/contexts/background";
 
@@ -8,15 +9,17 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const { bgSrc } = useBackground();
+  const [isToday] = useRoute("/");
+  const showPhoto = isToday && Boolean(bgSrc);
 
   return (
     <div
       className="min-h-[100dvh] w-full text-ink font-sans flex flex-col relative max-w-md mx-auto overflow-hidden shadow-2xl ring-1 ring-border-theme bg-background"
     >
-      {bgSrc && (
+      {showPhoto && (
         <>
           <img
-            src={bgSrc}
+            src={bgSrc!}
             aria-hidden="true"
             alt=""
             style={{
