@@ -1,11 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useGetRandomVenue, useCreateVisit, useUpdateVisit, GetRandomVenueMode, getGetRandomVenueQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Navigation, ExternalLink, Coffee, Check, ArrowRight, X } from "lucide-react";
-import { useBackground } from "@/contexts/background";
-
-const OVERLAY = "rgba(245, 240, 232, 0.72)";
 
 const NEIGHBORHOODS = [
   "Anywhere in SF", "Castro", "Dogpatch", "Financial District", "Haight", 
@@ -25,25 +22,6 @@ export default function Today() {
   
   const [appState, setAppState] = useState<"randomizer" | "heading-out" | "journal">("randomizer");
   const [currentVisitId, setCurrentVisitId] = useState<number | null>(null);
-
-  const { bgSrc } = useBackground();
-
-  useEffect(() => {
-    if (!bgSrc) return;
-    const el = document.body;
-    el.style.backgroundImage = `linear-gradient(${OVERLAY}, ${OVERLAY}), url(${JSON.stringify(bgSrc)})`;
-    el.style.backgroundSize = "cover";
-    el.style.backgroundPosition = "center center";
-    el.style.backgroundRepeat = "no-repeat";
-    el.style.backgroundAttachment = "fixed";
-    return () => {
-      el.style.backgroundImage = "";
-      el.style.backgroundSize = "";
-      el.style.backgroundPosition = "";
-      el.style.backgroundRepeat = "";
-      el.style.backgroundAttachment = "";
-    };
-  }, [bgSrc]);
 
   const queryClient = useQueryClient();
 
