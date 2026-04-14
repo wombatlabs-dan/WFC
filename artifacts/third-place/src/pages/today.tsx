@@ -1,8 +1,14 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useGetRandomVenue, useCreateVisit, useUpdateVisit, GetRandomVenueMode, getGetRandomVenueQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Navigation, ExternalLink, Coffee, Check, ArrowRight, X } from "lucide-react";
+
+const CAFÉ_PHOTOS = [
+  "plants-light", "industrial-interior", "bright-modern", "work-mode",
+  "espresso-counter", "the-barista", "cafe-scene", "window-seat",
+  "hanging-ferns", "vintage-counter",
+];
 
 const NEIGHBORHOODS = [
   "Anywhere in SF", "Castro", "Dogpatch", "Financial District", "Haight", 
@@ -17,6 +23,23 @@ const MODES: { value: GetRandomVenueMode, label: string }[] = [
 ];
 
 export default function Today() {
+  const [bgPhoto] = useState(() => CAFÉ_PHOTOS[Math.floor(Math.random() * CAFÉ_PHOTOS.length)]);
+
+  useEffect(() => {
+    const base = import.meta.env.BASE_URL;
+    const url = `${base}photos/${bgPhoto}.jpg`;
+    document.body.style.backgroundImage = `url(${url})`;
+    document.body.style.backgroundSize = "cover";
+    document.body.style.backgroundPosition = "center";
+    document.body.style.backgroundAttachment = "fixed";
+    return () => {
+      document.body.style.backgroundImage = "";
+      document.body.style.backgroundSize = "";
+      document.body.style.backgroundPosition = "";
+      document.body.style.backgroundAttachment = "";
+    };
+  }, [bgPhoto]);
+
   const [neighborhood, setNeighborhood] = useState("Anywhere in SF");
   const [mode, setMode] = useState<GetRandomVenueMode>("coffee-only");
   
