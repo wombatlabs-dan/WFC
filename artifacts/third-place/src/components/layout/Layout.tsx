@@ -7,45 +7,30 @@ interface LayoutProps {
   children: ReactNode;
 }
 
+const OVERLAY = "rgba(245, 240, 232, 0.72)";
+
 export function Layout({ children }: LayoutProps) {
   const { bgSrc } = useBackground();
   const [isToday] = useRoute("/");
   const showPhoto = isToday && Boolean(bgSrc);
 
+  const backgroundStyle = showPhoto
+    ? {
+        backgroundImage: `linear-gradient(${OVERLAY}, ${OVERLAY}), url(${JSON.stringify(bgSrc)})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center center",
+        backgroundRepeat: "no-repeat",
+      }
+    : {
+        backgroundColor: "var(--color-base)",
+      };
+
   return (
     <div
-      className="min-h-[100dvh] w-full text-ink font-sans flex flex-col relative max-w-md mx-auto overflow-hidden shadow-2xl ring-1 ring-border-theme bg-background"
+      className="min-h-[100dvh] w-full text-ink font-sans flex flex-col max-w-md mx-auto overflow-hidden shadow-2xl ring-1 ring-border-theme"
+      style={backgroundStyle}
     >
-      {showPhoto && (
-        <>
-          <img
-            src={bgSrc!}
-            aria-hidden="true"
-            alt=""
-            style={{
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-              zIndex: 0,
-            }}
-          />
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              inset: 0,
-              backgroundColor: "rgba(245, 240, 232, 0.72)",
-              zIndex: 1,
-            }}
-          />
-        </>
-      )}
-      <main
-        className="flex-1 w-full overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom)+1rem)]"
-        style={{ position: "relative", zIndex: 2 }}
-      >
+      <main className="flex-1 w-full overflow-y-auto pb-[calc(4rem+env(safe-area-inset-bottom)+1rem)]">
         {children}
       </main>
       <BottomNav />
