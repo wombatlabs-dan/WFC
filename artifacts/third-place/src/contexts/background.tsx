@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from "react";
 
-const CAFÉ_PHOTOS = [
+export const CAFÉ_PHOTOS = [
   "andytown-plants",
   "wrecking-ball-interior",
   "sightglass-hayes",
@@ -19,19 +19,15 @@ function pickPhoto(): string {
 }
 
 interface BackgroundContextValue {
-  bgSrc: string | null;
-  setBgSrc: (src: string | null) => void;
+  bgSrc: string;
 }
 
-const BackgroundContext = createContext<BackgroundContextValue>({
-  bgSrc: null,
-  setBgSrc: () => {},
-});
+const BackgroundContext = createContext<BackgroundContextValue>({ bgSrc: "" });
 
 export function BackgroundProvider({ children }: { children: ReactNode }) {
-  const [bgSrc, setBgSrc] = useState<string | null>(() => pickPhoto());
+  const [bgSrc] = useState<string>(() => pickPhoto());
   return (
-    <BackgroundContext.Provider value={{ bgSrc, setBgSrc }}>
+    <BackgroundContext.Provider value={{ bgSrc }}>
       {children}
     </BackgroundContext.Provider>
   );

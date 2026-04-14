@@ -9,11 +9,16 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const { bgSrc } = useBackground();
 
+  const base = import.meta.env.BASE_URL;
+  const todayPaths = [base, base.replace(/\/$/, ""), "/"];
+  const isToday = todayPaths.includes(window.location.pathname);
+  const showPhoto = isToday && Boolean(bgSrc);
+
   return (
     <div
       className="min-h-[100dvh] w-full text-ink font-sans flex flex-col relative max-w-md mx-auto overflow-hidden shadow-2xl ring-1 ring-border-theme bg-background"
     >
-      {bgSrc && (
+      {showPhoto && (
         <>
           <img
             src={bgSrc}
