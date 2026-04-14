@@ -1,0 +1,343 @@
+## What I'm building
+
+A mobile-first personal web app called **Third Place** — a coffee shop operating system for someone who works from cafés regularly. The core loop: filter by neighborhood and mode → spin the randomizer → confirm you're going → log the visit → write a short journal entry. The app also tracks how many times you've visited each venue, discovers new spots automatically, and validates that existing ones haven't closed.
+
+The app is for a single user (me). No login required for v1. It will be hosted on Cloudflare Workers with a Cloudflare D1 (SQLite) database. I will deploy from Replit using the Wrangler CLI.
+
+The demo moment: I open the app on my phone, select "Anywhere in SF" and "Coffee + Food", tap "Take me somewhere", and it shows me a venue I haven't been to in a while with its hours, a Google Maps link, and how many times I've visited. I tap "I'm going here." Later, I tap "I'm here" to log the visit, and fill in a quick journal entry about what I worked on and how the coffee was.
+
+---
+
+## Design Direction — DO NOT USE DEFAULTS
+
+This app must feel bespoke. Do not use default Tailwind component patterns, generic card layouts, or system fonts. The aesthetic is "editorial roaster" — a specialty coffee magazine crossed with third-wave coffee packaging.
+
+### Typography (Google Fonts — load via `<link>`)
+- **Display / headings:** Fraunces (variable, optical size axis)
+  - Use weight 600–800 for headings, with slight optical sizing variation
+  - This is the personality of the app — use it for venue names, the randomizer button text, and section headers
+- **Body / UI text:** Literata (serif, highly readable at small sizes)
+  - Use for journal entries, venue details, hours, meta text
+  - Weight 400 for body, 500 for emphasis
+- **Monospace accent** (optional, for tags/categories): JetBrains Mono or IBM Plex Mono at small sizes
+
+### Color Palette (use CSS custom properties)
+- `--color-base: #F5F0E8` (warm linen — primary background, NOT white)
+- `--color-surface: #FDFBF7` (lighter cream — cards, elevated surfaces)
+- `--color-ink: #2C1810` (espresso dark — primary text, NOT black)
+- `--color-ink-muted: #6B5C53` (warm gray — secondary text, timestamps)
+- `--color-accent: #C4704B` (terracotta clay — buttons, active states, links)
+- `--color-accent-hover: #A85A38` (darker terracotta for hover/press)
+- `--color-sage: #8B9D83` (muted sage — tags, secondary badges, success states)
+- `--color-sage-light: #E8EDE5` (sage tint — tag backgrounds)
+- `--color-border: #E2DCD4` (warm border — dividers, card edges)
+
+Do NOT use pure white (#fff) as a background or pure black (#000) for text. Everything should feel warm.
+
+### The Randomizer Card (most important design element)
+- This is not a standard card component. Give it presence:
+  - Subtle warm shadow (not gray — use rgba of espresso color)
+  - Slight border in `--color-border`
+  - Consider a very subtle paper texture or grain noise as a CSS background
+  - Venue name in Fraunces at large size (24-28px mobile)
+  - Generous internal padding (24-32px)
+- The "Take me somewhere" button: full-width, `--color-accent` background, Fraunces font, slightly oversized. This is the hero interaction.
+- Result card entrance animation: slide up + fade in, ~300ms ease-out. Stagger the internal elements (name first, then details, then actions) with 50-80ms delays between them.
+
+### Layout & Spatial Rules
+- Mobile viewport (390px) is the primary design target
+- Generous vertical spacing between sections (24-32px)
+- Content should breathe — no cramming. Prefer scrolling over density.
+- Bottom tab bar: custom-styled, not a library component. Use `--color-surface` background with a top border in `--color-border`. Active tab uses `--color-accent` for the icon, inactive uses `--color-ink-muted`.
+- No rounded-corner pill buttons (that's the Replit default look). Use subtle rounding (4-6px) or square corners with bold color instead.
+
+### Micro-interactions & Motion
+- Page transitions: simple crossfade (150-200ms)
+- "Take me somewhere" tap: brief scale-down on press (transform: scale(0.97)), then the result card entrance animation
+- "Somewhere else" re-spin: current card slides out left, new card slides in from right
+- Tab bar icons: subtle scale bump on tap (1.0 → 1.1 → 1.0, 200ms)
+- Journal save: brief checkmark animation or subtle green flash
+
+### Things to Avoid
+- Do NOT use default Tailwind card patterns (white bg, gray border, rounded-xl, shadow-md)
+- Do NOT use Inter, Roboto, Arial, system-ui, or sans-serif as the font
+- Do NOT use purple, blue gradients, or any "tech startup" color scheme
+- Do NOT use Material UI, Ant Design, Chakra UI, or any component library defaults — style everything with Tailwind utilities and custom CSS
+- Do NOT use generic loading spinners — if something loads, use a skeleton with the warm palette
+- The app should look like a designer built it for personal use, not like a template
+
+---
+
+## Technical Stack
+
+- **Frontend:** React (Vite), Tailwind CSS + custom CSS for the design system, mobile-first layout, PWA manifest + service worker so it installs to iPhone home screen. No component libraries.
+- **Backend:** Cloudflare Workers (API routes)
+- **Database:** Cloudflare D1 (bound to the Worker)
+- **Scheduled jobs:** Cloudflare Workers Cron Triggers
+- **Deployment:** Wrangler CLI from Replit
+- **External APIs:**
+  - Google Places API — validate venues are still open, pull current hours
+  - Brave Search API — discover new SF coffee shop openings
+  - Google Maps deep links (no API key — standard URL format)
+
+---
+
+## Database Schema
+
+Create this schema in D1 via a Wrangler migration:
+
+```sql
+CREATE TABLE venues (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  neighborhood TEXT,
+  address TEXT,
+  category TEXT CHECK(category IN ('coffee-only','coffee-food','coworking','sandwich-lunch')),
+  tags TEXT DEFAULT '[]',        -- JSON array: ["pour-over","wifi","outlets","quiet","founder-crowd","laptop-friendly"]
+  work_rating INTEGER DEFAULT 3, -- 1-5, Dan-assigned
+  coffee_rating INTEGER DEFAULT 3, -- 1-5, Dan-assigned
+  hours TEXT,                    -- plain text e.g. "Mon–Fri 7am–5pm, Sat–Sun 8am–4pm"
+  maps_url TEXT,
+  source_url TEXT,               -- article where it was discovered (if any)
+  status TEXT DEFAULT 'active' CHECK(status IN ('active','closed','temporarily-closed','unverified')),
+  date_added TEXT DEFAULT (date('now')),
+  visit_count INTEGER DEFAULT 0,
+  last_visited TEXT              -- ISO date string
+);
+
+CREATE TABLE visits (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  venue_id INTEGER NOT NULL REFERENCES venues(id),
+  visited_at TEXT DEFAULT (datetime('now')),
+  worked_on TEXT,
+  accomplished TEXT,
+  who_saw TEXT,
+  coffee_notes TEXT
+);
+
+CREATE TABLE discovery_queue (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  address TEXT,
+  neighborhood TEXT,
+  source_url TEXT,
+  discovered_at TEXT DEFAULT (datetime('now')),
+  status TEXT DEFAULT 'pending' CHECK(status IN ('pending','approved','rejected'))
+);
+```
+
+Seed the venues table with the 35 venues listed in the SEED DATA section at the bottom of this prompt.
+
+---
+
+## Key Features to Build
+
+### 1. The Randomizer (home screen)
+The home screen IS the randomizer. No dashboard clutter.
+
+- **Neighborhood dropdown:** "Anywhere in SF" (default), then alphabetical list: Castro, Dogpatch, Financial District, Haight, Hayes Valley, Mission, NoPa, North Beach, Outer Richmond, Outer Sunset, Pacific Heights, Russian Hill, SoMa, Union Square
+- **Mode selector (3 options, tab/pill style):**
+  - `Coffee Only` — filters venues where category = 'coffee-only' or 'coworking'
+  - `Coffee + Food` — filters venues where category = 'coffee-food'
+  - `Lunch Spot` — filters venues where category = 'sandwich-lunch'
+- **"Take me somewhere" button** — large, prominent, full-width on mobile
+- **Result card** shows:
+  - Venue name (large)
+  - Neighborhood + category tags
+  - Work rating (☕ icons, 1–5) + Coffee rating (★ icons, 1–5)
+  - Hours for today (parse the hours text to highlight today's hours)
+  - Visit count: "You've been here 4 times" (or "First visit!" if 0)
+  - Last visited: "Last visited 3 weeks ago" (or never)
+  - Google Maps button (opens maps_url in new tab)
+  - Source article link (if source_url exists): "Read about it →"
+- **Two action buttons below the card:**
+  - "Somewhere else" — re-randomizes (keeping same filters)
+  - "I'm going here →" — sets a pending visit, transitions to the Heading Out screen
+
+### 2. Heading Out Screen
+Shown after "I'm going here" is tapped.
+
+- Displays the chosen venue name + address
+- Google Maps deep link button (prominent)
+- "I'm here — log my visit" button — tapping this records the visit (increments visit_count, sets last_visited, creates a visits row with visited_at = now)
+- "Actually, let me pick again" — goes back to randomizer
+- This two-step design (going → arrived) is intentional: Dan might browse several options before committing, and only the confirmed arrival should count as a visit
+
+### 3. Journal Entry Screen
+Shown immediately after "I'm here" is tapped, or accessible from visit history.
+
+Four fields, all optional, free text, with placeholder prompts:
+- **What I worked on** — placeholder: "Projects, tasks, client work..."
+- **What I accomplished** — placeholder: "Shipped, decided, made progress on..."
+- **Who I saw** — placeholder: "Notable conversations, chance encounters..."
+- **How was the coffee?** — placeholder: "What you ordered, quality, anything memorable..."
+
+- "Save entry" button (saves even if all fields blank)
+- "Skip for now" — dismisses without saving journal (visit is still logged)
+
+### 4. Visit History Screen
+- Chronological list of all visits, newest first
+- Each row: venue name, date, neighborhood, and first 60 chars of coffee_notes (or "No notes" if empty)
+- Tap a row to expand and see full journal entry
+- Filter by venue name (search box at top)
+- Summary stat at top: "You've logged X visits to Y venues"
+
+### 5. Venue List Screen
+- All active venues, grouped by category
+- Each row: name, neighborhood, visit count, last visited, status badge
+- Tap a venue to open the Venue Detail screen
+- Filter/search bar at top
+- "Closed" venues shown at bottom of list in muted style
+
+### 6. Venue Detail Screen
+- Full venue record
+- All past journal entries for this venue, newest first
+- Edit button: allows updating hours, tags, work_rating, coffee_rating, status, maps_url, source_url
+- Cannot delete venues (only mark as closed)
+
+### 7. What's New Screen
+- Two sections:
+  - **Recently added** — venues with date_added in last 30 days, sorted newest first
+  - **Pending review** — venues in discovery_queue with status = 'pending'
+- Each pending item shows: name, address, source_url link, "Approve" and "Reject" buttons
+- Approving moves the venue from discovery_queue into venues table with status = 'active'
+- Badge/dot on the nav icon when there are pending items
+
+### 8. Discovery & Validation (Background Workers)
+
+**Cron schedule:** Run every Sunday at 9pm PT (`0 5 * * 1` in UTC)
+
+**Discovery Worker** (`/api/cron/discover`):
+- Call Brave Search API with query: `"new coffee shop San Francisco" OR "new cafe San Francisco" specialty "third wave" OR "pour over" 2026`
+- Parse results for venue names + URLs not already in the venues table
+- Insert into discovery_queue with status = 'pending'
+- Do NOT auto-approve — Dan reviews in the What's New screen
+
+**Validation Worker** (`/api/cron/validate`):
+- For each venue with status = 'active', call Google Places API to check if still operational
+- If Google Places returns `business_status: CLOSED_PERMANENTLY` → update status to 'closed'
+- If hours have changed → update the hours field
+- If Google Places can't find the venue → update status to 'unverified' (don't auto-close)
+- Log validation results to a simple validation_log table
+
+**Manual trigger:** `POST /api/cron/discover` accessible from a "Search for new places" button in the What's New screen.
+
+---
+
+## Navigation
+
+Bottom tab bar (mobile-native feel), 5 tabs:
+1. **Today** (home/randomizer) — spinning arrow icon
+2. **History** (visit log) — clock icon
+3. **Places** (venue list) — map pin icon
+4. **New** (what's new + discovery queue) — sparkle icon, badge when pending items exist
+5. **Settings** (API key config, manual cron trigger) — gear icon
+
+---
+
+## The Demo Flow
+
+1. Open app on iPhone (installed as PWA to home screen)
+2. Home screen shows neighborhood = "Anywhere in SF", mode = "Coffee Only" by default
+3. Tap "Take me somewhere" → result card animates in showing Saint Frank Coffee, Russian Hill
+4. Card shows: ★★★★★ coffee, ☕☕☕☕ work rating, "Mon–Fri 7am–5pm", "You've been here 2 times", "Last visited 3 weeks ago", Google Maps button
+5. Tap "I'm going here" → Heading Out screen with address and big Maps button
+6. Arrive, tap "I'm here — log my visit"
+7. Journal screen appears, type a few notes, tap Save
+8. Done. Visit count for Saint Frank is now 3.
+
+---
+
+## What Must Work Flawlessly
+
+- Randomizer returns a result every time (handle edge cases: no venues match filters, only 1 venue matches, etc.)
+- Visit logging is reliable — no duplicate visits if button tapped twice
+- PWA installs cleanly on iOS Safari (proper manifest, icons, apple-touch-icon)
+- Mobile layout looks good at 390px width (iPhone 15 Pro) — this is the primary viewport
+- Google Maps links open correctly on mobile
+
+## What Can Be Rough for Now
+
+- Settings screen UI (just needs to work, doesn't need to be pretty)
+- Validation worker edge cases (if Google Places lookup fails, skip gracefully)
+- Discovery worker result quality (we'll tune the search query after seeing first results)
+- Desktop layout (mobile-first; desktop just needs to not break)
+
+---
+
+## Environment Variables Required
+
+```
+GOOGLE_PLACES_API_KEY=        # For venue validation
+BRAVE_SEARCH_API_KEY=         # For new venue discovery
+```
+
+Store in Cloudflare Workers secrets (not in code). Provide a Settings screen where these can be viewed (masked) and the validation/discovery workers can be manually triggered.
+
+---
+
+## SEED DATA — 35 SF Venues
+
+Insert this data into the venues table on first run.
+
+**Category: coffee-only**
+1. Sightglass Coffee | SoMa | 270 7th St | No outlets; go fully charged | work_rating: 3, coffee_rating: 5
+2. Ritual Coffee Roasters | Mission | 1026 Valencia St | Busy but work-friendly | work_rating: 4, coffee_rating: 5
+3. Saint Frank Coffee | Russian Hill | 2340 polk St | Best all-around work + coffee combo | work_rating: 5, coffee_rating: 5
+4. Verve Coffee Roasters | SoMa | TBD SF location | Very work-friendly, outlets | work_rating: 4, coffee_rating: 5
+5. Andytown Coffee Roasters | Outer Sunset | 3655 Lawton St | Relaxed; wifi; great for long sessions | work_rating: 4, coffee_rating: 4
+6. Flywheel Coffee Roasters | Haight | 672 Stanyan St | Quiet; good for deep work | work_rating: 4, coffee_rating: 4
+7. Wrecking Ball Coffee Roasters | Fillmore | 2271 Union St | Less crowded; solid work environment | work_rating: 4, coffee_rating: 4
+8. Equator Coffees | Multiple | Various SF | Good working setups at several locations | work_rating: 4, coffee_rating: 4
+9. Snowbird Coffee | Tenderloin | 1352 Polk St | Focused solo sessions | work_rating: 3, coffee_rating: 4
+10. The Coffee Movement | SoMa | 543 Howard St | Communal table; outlets; 50+ Mbps wifi | work_rating: 5, coffee_rating: 5
+11. Sextant Coffee Roasters | SoMa | 1415 Folsom St | Large industrial; high ceilings; long sessions | work_rating: 4, coffee_rating: 5
+12. Home Coffee Roasters | Outer Richmond | 508 Cabrillo St | Quiet; deep work gem | work_rating: 4, coffee_rating: 4
+13. Réveille Coffee — Jackson Square | Jackson Square | 100 Montgomery St | Near startup scene; strong coffee | work_rating: 4, coffee_rating: 4
+14. Linea Caffe | Mission | 3417 18th St | Intimate; not a 4-hour spot; rotate in for quality | work_rating: 2, coffee_rating: 5
+15. Paramo Coffee | Multiple | Various SF | Distraction-free morning sessions | work_rating: 4, coffee_rating: 4
+
+**Category: coffee-food**
+16. The Grove | Multiple | 2250 Chestnut St + others | All-day; explicit lingering culture | work_rating: 5, coffee_rating: 3
+17. Coffee Bar | SoMa | 1890 Bryant St | Startup founder hangout; huge space; all-day | work_rating: 5, coffee_rating: 4
+18. Tartine Manufactory | Mission | 595 Alabama St | Large space; great food; treat-yourself anchor | work_rating: 3, coffee_rating: 5
+19. Réveille — North Beach | North Beach | 105 Columbus Ave | Restaurant community; good coffee | work_rating: 4, coffee_rating: 4
+20. Réveille — Castro | Castro | 4076 18th St | Inviting space; laptop-friendly | work_rating: 4, coffee_rating: 4
+
+**Category: coworking**
+21. Capital One Café | Union Square | 101 Post St | Free; Verve coffee; outlets everywhere | work_rating: 5, coffee_rating: 4
+22. NEON | Mission | Check neon.work | $5/hr; unlimited coffee included; startup crowd | work_rating: 5, coffee_rating: 3
+23. Ecosystem Coworking SF | TBD | Check ecosystemcoworkingsf.com | Day pass; no membership | work_rating: 5, coffee_rating: 3
+24. Corgi Café | Financial District | TBD | AI founder scene; 24-hour | work_rating: 4, coffee_rating: 3
+25. The Social Study | Hayes Valley | TBD | Coworking-café hybrid; creative/startup crowd | work_rating: 5, coffee_rating: 3
+
+**Category: sandwich-lunch**
+26. Rhea's Deli & Market | Mission | 800 Valencia St | Korean-influenced; bar stool seating; laptop ok | work_rating: 3, coffee_rating: 1
+27. Deli Board | SoMa | 1058 Brannan St | Tank-sized sandwiches; workers/creatives crowd | work_rating: 3, coffee_rating: 1
+28. Lucinda's Deli & More | NoPa | 535 Scott St | Baguette sandwiches + Third Wheel coffee on-site | work_rating: 3, coffee_rating: 2
+29. Giordano Bros. | Mission | 3108 16th St | Pittsburgh-style; casual; seating available | work_rating: 2, coffee_rating: 1
+30. Ike's Love & Sandwiches | Multiple | Various SF | Reliable; comfortable seating; no laptop attitude | work_rating: 3, coffee_rating: 1
+31. Blue Fog Market | Pacific Heights | 2435 Polk St | Market + espresso bar + deli; welcoming | work_rating: 3, coffee_rating: 3
+32. Molinari Delicatessen | North Beach | 373 Columbus Ave | SF legend; primarily takeout — grab & relocate | work_rating: 1, coffee_rating: 1
+33. Palm City | Outer Sunset | 4055 Irving St | Wine bar + hoagies; opens noon; wind-down spot | work_rating: 2, coffee_rating: 1
+
+**Founder/Tech overlay — already listed above, add tag "founder-crowd" to:**
+- Réveille Jackson Square (#13)
+- Coffee Bar (#17)
+- Corgi Café (#24)
+- The Social Study (#25)
+- Sextant Coffee Roasters — Dogpatch location (#11)
+
+Note: Venue #34 and #35 are placeholders — add any two additional venues Dan wants before launch.
+
+---
+
+## Notes for the Builder
+
+- Use Wrangler v3+ for D1 and Workers deployment
+- The D1 database binding name in wrangler.toml should be `DB`
+- Cron triggers defined in wrangler.toml under `[triggers]`
+- For the PWA: include a `manifest.json` with name "Third Place", short_name "3rd Place", theme_color #2C1810 (espresso), background_color #F5F0E8 (warm linen), display standalone
+- For iOS PWA install: include `<meta name="apple-mobile-web-app-capable" content="yes">` and apple-touch-icon assets
+- All API keys stored as Cloudflare Worker secrets, never in source code
+- Error states: if randomizer finds 0 matching venues, show "No venues match these filters — try a different neighborhood or mode" rather than crashing
