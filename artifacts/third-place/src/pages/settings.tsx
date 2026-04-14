@@ -1,8 +1,21 @@
 import { useRunDiscovery, useRunValidation, useHealthCheck } from "@workspace/api-client-react";
-import { Settings as SettingsIcon, Database, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import { Settings as SettingsIcon, Database, CheckCircle2, AlertCircle, RefreshCw, Key } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+
+function useSettingsStatus() {
+  return useQuery({
+    queryKey: ["settings-status"],
+    queryFn: async () => {
+      const res = await fetch("/api/settings/status");
+      if (!res.ok) throw new Error("Failed to fetch settings status");
+      return res.json() as Promise<{ googlePlacesApiKey: boolean; braveSearchApiKey: boolean }>;
+    },
+  });
+}
 
 export default function Settings() {
   const { data: health } = useHealthCheck();
+  const { data: keyStatus } = useSettingsStatus();
   const runDiscovery = useRunDiscovery();
   const runValidation = useRunValidation();
 
@@ -91,21 +104,29 @@ export default function Settings() {
           </div>
         </section>
 
-        <section className="bg-surface border border-border-theme rounded-lg p-4 opacity-70">
-          <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-4">API Keys</h2>
+        <section className="bg-surface border border-border-theme rounded-lg p-4">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-4 flex items-center gap-1.5">
+            <Key className="w-4 h-4" /> API Keys
+          </h2>
           
+          <p className="text-xs text-ink-muted mb-3">Configure these keys as server environment variables to enable discovery and validation.</p>
+
           <div className="space-y-3">
-            <div>
-              <label className="block text-xs text-ink-muted mb-1">GOOGLE_PLACES_API_KEY</label>
-              <div className="font-mono text-sm bg-base px-3 py-2 rounded border border-border-theme text-ink">
-                •••••••••••••••••••••••••••••••••••••{import.meta.env.VITE_GOOGLE_PLACES_API_KEY?.slice(-4) || 'XXXX'}
-              </div>
+            <div className="flex items-center justify-between py-2 border-b border-border-theme/50">
+              <span className="text-xs font-mono text-ink">GOOGLE_PLACES_API_KEY</span>
+              {keyStatus?.googlePlacesApiKey ? (
+                <span className="flex items-center gap-1 text-xs text-sage font-medium"><CheckCircle2 className="w-3.5 h-3.5" /> Set</span>
+              ) : (
+                <span className="flex items-center gap-1 text-xs text-ink-muted"><AlertCircle className="w-3.5 h-3.5" /> Not set</span>
+              )}
             </div>
-            <div>
-              <label className="block text-xs text-ink-muted mb-1">BRAVE_SEARCH_API_KEY</label>
-              <div className="font-mono text-sm bg-base px-3 py-2 rounded border border-border-theme text-ink">
-                •••••••••••••••••••••••••••••••••••••{import.meta.env.VITE_BRAVE_SEARCH_API_KEY?.slice(-4) || 'XXXX'}
-              </div>
+            <div className="flex items-center justify-between py-2">
+              <span className="text-xs font-mono text-ink">BRAVE_SEARCH_API_KEY</span>
+              {keyStatus?.braveSearchApiKey ? (
+                <span className="flex items-center gap-1 text-xs text-sage font-medium"><CheckCircle2 className="w-3.5 h-3.5" /> Set</span>
+              ) : (
+                <span className="flex items-center gap-1 text-xs text-ink-muted"><AlertCircle className="w-3.5 h-3.5" /> Not set</span>
+              )}
             </div>
           </div>
         </section>
