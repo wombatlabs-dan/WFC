@@ -1,5 +1,5 @@
 # Product Requirements Document
-## Third Place — Personal Coffee Shop Operating System
+## Work From Coffeehouse (WFC) — Personal Coffee Shop Operating System
 ### Version 1.0 — Personal MVP
 
 *Prepared: April 14, 2026*
@@ -14,7 +14,7 @@ Remote workers and freelancers with location flexibility spend $1,800–$3,000/y
 
 The result: decision fatigue every morning ("where should I work today?"), repetition blindness (defaulting to the same 2–3 spots), no record of what you've tried, and no structured way to discover new places that match your taste.
 
-**Third Place** solves this for Dan Harrison first — a personal tool tuned to his specific taste (third wave, pour-over, no matcha-only shops, laptop-friendly) and anchored in San Francisco. If it works as a personal tool, it becomes a product.
+**Work From Coffee** solves this for Dan Harrison first — a personal tool tuned to his specific taste (third wave, pour-over, no matcha-only shops, laptop-friendly) and anchored in San Francisco. If it works as a personal tool, it becomes a product.
 
 ---
 
@@ -230,7 +230,7 @@ CREATE TABLE discovery_queue (
 
 ## 9. Open Questions
 
-1. **Name:** "Third Place" is conceptually strong but has prior use (Starbucks used it heavily). Check trademark/domain availability before committing.
+1. **Name:** "Third Place" is conceptually strong but has prior use (Starbucks used it heavily). Check trademark/domain availability before committing. [addressed].
 2. **Brave Search API quality:** How good is it at surfacing new SF café openings vs. generic results? Test before relying on it for discovery.
 3. **Google Places API cost:** At weekly validation runs for 35 venues, cost should be negligible — but confirm pricing tier before launch.
 4. **Journal friction:** Will Dan actually fill in 4 fields after every visit? Consider making 1 field (coffee notes) the only required one, with the rest optional and collapsible.
