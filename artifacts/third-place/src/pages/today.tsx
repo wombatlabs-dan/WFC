@@ -109,7 +109,6 @@ export default function Today() {
                       <option key={n} value={n}>{n}</option>
                     ))}
                   </select>
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none border-l border-b border-ink-muted w-2.5 h-2.5 -rotate-45 transform translate-y-[-70%]" />
                 </div>
 
