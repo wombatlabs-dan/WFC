@@ -140,8 +140,10 @@ export default function Today() {
             </div>
 
             {isError && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-4 bg-surface border border-border-theme rounded-md text-center text-ink-muted text-sm mt-4">
-                No venues match these filters — try a different neighborhood or mode.
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 px-6">
+                <div className="bg-white/30 backdrop-blur-md border border-white/40 rounded-2xl p-4 text-center text-ink text-sm shadow-lg">
+                  No venues match these filters — try a different neighborhood or mode.
+                </div>
               </motion.div>
             )}
 
