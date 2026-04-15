@@ -103,12 +103,13 @@ export default function Today() {
                   <select 
                     value={neighborhood}
                     onChange={(e) => setNeighborhood(e.target.value)}
-                    className="w-full appearance-none bg-white/60 border border-white/50 text-ink px-4 py-3 rounded-md font-sans focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent shadow-sm text-center font-medium"
+                    className="w-full appearance-none bg-white/60 border border-white/50 text-ink pl-10 pr-8 py-3 rounded-md font-sans focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent shadow-sm font-medium"
                   >
                     {NEIGHBORHOODS.map(n => (
                       <option key={n} value={n}>{n}</option>
                     ))}
                   </select>
+                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-muted pointer-events-none" />
                   <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none border-l border-b border-ink-muted w-2.5 h-2.5 -rotate-45 transform translate-y-[-70%]" />
                 </div>
 
