@@ -127,18 +127,16 @@ export default function Today() {
               </div>
             </div>
 
-            <div className="mt-6">
-              <div className="rounded-2xl p-4 shadow-2xl" style={{ backgroundColor: '#ffffff' }}>
-                <button
-                  onClick={handleRandomize}
-                  disabled={isFetching}
-                  className="w-full font-display text-xl py-4 rounded-xl transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 flex items-center justify-center gap-2"
-                  style={{ backgroundColor: '#C4704B', color: '#ffffff', boxShadow: '0 4px 12px rgba(196,112,75,0.4)' }}
-                >
-                  {isFetching ? "Finding a spot..." : "Take me somewhere"}
-                  {!isFetching && <ArrowRight className="w-5 h-5" />}
-                </button>
-              </div>
+            <div className="mt-4">
+              <button
+                onClick={handleRandomize}
+                disabled={isFetching}
+                className="w-full font-display text-2xl py-5 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 flex items-center justify-center gap-2"
+                style={{ backgroundColor: '#ffffff', color: '#2C1810', boxShadow: '0 4px 24px rgba(44,24,16,0.12)' }}
+              >
+                {isFetching ? "Finding a spot..." : "Take me somewhere"}
+                {!isFetching && <ArrowRight className="w-5 h-5" />}
+              </button>
             </div>
 
             {isError && (
