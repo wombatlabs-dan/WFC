@@ -274,43 +274,45 @@ export default function Today() {
             animate={{ opacity: 1, y: 0 }}
             className="flex-1 flex flex-col py-6"
           >
-            <div className="mb-6 text-center">
-              <h1 className="font-display text-2xl text-ink">Journal Entry</h1>
-              <p className="text-sm text-ink-muted">{venue.name}</p>
-            </div>
+            <div className="bg-white/30 backdrop-blur-md rounded-2xl p-5 border border-white/40 shadow-lg flex flex-col gap-5 flex-1">
+              <div className="text-center">
+                <h1 className="font-display text-2xl text-ink">Journal Entry</h1>
+                <p className="text-sm text-ink-muted">{venue.name}</p>
+              </div>
 
-            <div className="space-y-5 flex-1 overflow-y-auto px-1 pb-20">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">What I worked on</label>
-                <textarea 
-                  value={workedOn} onChange={e => setWorkedOn(e.target.value)}
-                  placeholder="Projects, tasks, client work..."
-                  className="w-full bg-surface border border-border-theme rounded p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">What I accomplished</label>
-                <textarea 
-                  value={accomplished} onChange={e => setAccomplished(e.target.value)}
-                  placeholder="Shipped, decided, made progress on..."
-                  className="w-full bg-surface border border-border-theme rounded p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">Who I saw</label>
-                <textarea 
-                  value={whoSaw} onChange={e => setWhoSaw(e.target.value)}
-                  placeholder="Notable conversations, chance encounters..."
-                  className="w-full bg-surface border border-border-theme rounded p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">How was the coffee?</label>
-                <textarea 
-                  value={coffeeNotes} onChange={e => setCoffeeNotes(e.target.value)}
-                  placeholder="What you ordered, quality, anything memorable..."
-                  className="w-full bg-surface border border-border-theme rounded p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent"
-                />
+              <div className="space-y-4 flex-1 overflow-y-auto pb-20">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">What I worked on</label>
+                  <textarea 
+                    value={workedOn} onChange={e => setWorkedOn(e.target.value)}
+                    placeholder="Projects, tasks, client work..."
+                    className="w-full bg-white/60 border border-white/50 rounded-xl p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent/50 placeholder:text-ink-muted/60"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">What I accomplished</label>
+                  <textarea 
+                    value={accomplished} onChange={e => setAccomplished(e.target.value)}
+                    placeholder="Shipped, decided, made progress on..."
+                    className="w-full bg-white/60 border border-white/50 rounded-xl p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent/50 placeholder:text-ink-muted/60"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">Who I saw</label>
+                  <textarea 
+                    value={whoSaw} onChange={e => setWhoSaw(e.target.value)}
+                    placeholder="Notable conversations, chance encounters..."
+                    className="w-full bg-white/60 border border-white/50 rounded-xl p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent/50 placeholder:text-ink-muted/60"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">How was the coffee?</label>
+                  <textarea 
+                    value={coffeeNotes} onChange={e => setCoffeeNotes(e.target.value)}
+                    placeholder="What you ordered, quality, anything memorable..."
+                    className="w-full bg-white/60 border border-white/50 rounded-xl p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent/50 placeholder:text-ink-muted/60"
+                  />
+                </div>
               </div>
             </div>
 
