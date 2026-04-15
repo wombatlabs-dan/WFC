@@ -150,7 +150,7 @@ export default function Today() {
                 initial={{ opacity: 0, y: 40 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
-                className="fixed inset-x-4 bottom-[calc(4rem+env(safe-area-inset-bottom)+1rem)] z-40 max-w-md mx-auto"
+                className="mt-4"
               >
                 <div className="rounded-2xl p-6 md:p-8 shadow-[0_20px_60px_rgba(44,24,16,0.2)] relative overflow-hidden flex flex-col gap-5" style={{ backgroundColor: '#ffffff' }}>
                   <div className="absolute inset-0 opacity-[0.04] pointer-events-none" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E\")" }} />
