@@ -1,5 +1,5 @@
 # Third Place — Cloudflare Migration Context
-*Prepared: April 14, 2026*
+*Prepared on: April 14, 2026*
 
 ---
 
