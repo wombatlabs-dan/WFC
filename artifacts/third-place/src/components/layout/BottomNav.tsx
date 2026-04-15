@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Coffee, MapPin, History, Sparkles, Settings } from "lucide-react";
+import { Coffee, MapPin, History, ListPlus, HelpCircle } from "lucide-react";
 import { useListDiscovery } from "@workspace/api-client-react";
 
 export function BottomNav() {
@@ -12,8 +12,8 @@ export function BottomNav() {
     { path: "/", icon: Coffee, label: "Today" },
     { path: "/places", icon: MapPin, label: "Places" },
     { path: "/history", icon: History, label: "History" },
-    { path: "/new", icon: Sparkles, label: "New", badge: pendingCount },
-    { path: "/settings", icon: Settings, label: "Settings" },
+    { path: "/new", icon: ListPlus, label: "New", badge: pendingCount },
+    { path: "/about", icon: HelpCircle, label: "About" },
   ];
 
   return (

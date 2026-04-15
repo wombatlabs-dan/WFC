@@ -1,3 +1,11 @@
 <svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="180" height="180" rx="36" fill="#FF3C00"/>
+  <rect width="180" height="180" rx="36" fill="#F5F0E8"/>
+  <!-- Cup body -->
+  <path d="M45 65 L55 135 Q55 143 65 143 L115 143 Q125 143 125 135 L135 65 Z" fill="none" stroke="#2C1810" stroke-width="9" stroke-linejoin="round"/>
+  <!-- Handle -->
+  <path d="M135 80 Q162 80 162 103 Q162 125 135 125" fill="none" stroke="#2C1810" stroke-width="9" stroke-linecap="round"/>
+  <!-- Steam lines -->
+  <path d="M75 48 Q79 38 75 28" fill="none" stroke="#2C1810" stroke-width="7" stroke-linecap="round"/>
+  <path d="M90 48 Q94 38 90 28" fill="none" stroke="#2C1810" stroke-width="7" stroke-linecap="round"/>
+  <path d="M105 48 Q109 38 105 28" fill="none" stroke="#2C1810" stroke-width="7" stroke-linecap="round"/>
 </svg>

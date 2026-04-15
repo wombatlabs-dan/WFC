@@ -13,16 +13,28 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 const CATEGORY_ORDER = ["coffee-only", "coffee-food", "coworking", "sandwich-lunch"];
 
+const FILTERS = [
+  { value: "all", label: "All" },
+  { value: "coffee-only", label: "Coffee Only" },
+  { value: "coffee-food", label: "Coffee + Food" },
+  { value: "sandwich-lunch", label: "Lunch Spot" },
+];
+
 export default function Places() {
   const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("all");
   const [, navigate] = useLocation();
-  const { data: venues, isLoading } = useListVenues({ search: search || undefined, status: "all" });
+  const { data: venues, isLoading } = useListVenues({ search: search || undefined });
 
   const activeVenues = venues?.filter(v => v.status === "active" || v.status === "unverified") || [];
   const closedVenues = venues?.filter(v => v.status === "closed" || v.status === "temporarily-closed") || [];
 
+  const filteredActive = filter === "all"
+    ? activeVenues
+    : activeVenues.filter(v => v.category === filter);
+
   const byCategory = CATEGORY_ORDER.reduce<Record<string, Venue[]>>((acc, cat) => {
-    acc[cat] = activeVenues.filter(v => v.category === cat);
+    acc[cat] = filteredActive.filter(v => v.category === cat);
     return acc;
   }, {});
 
@@ -37,12 +49,12 @@ export default function Places() {
   }
 
   return (
-    <div className="p-4 pt-6 h-full flex flex-col">
+    <div className="p-4 pt-16 flex flex-col overflow-y-auto" style={{ height: '100%' }}>
       <div className="mb-6">
         <h1 className="font-display text-3xl text-ink mb-2">Places</h1>
       </div>
 
-      <div className="relative mb-6">
+      <div className="relative mb-3">
         <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
           <Search className="h-4 w-4 text-ink-muted" />
         </div>
@@ -55,14 +67,37 @@ export default function Places() {
         />
       </div>
 
-      <div className="flex-1 overflow-y-auto pb-4">
+      <div className="flex p-1 bg-surface border border-border-theme rounded-md shadow-sm mb-6">
+        {FILTERS.map(f => (
+          <button
+            key={f.value}
+            onClick={() => setFilter(f.value)}
+            className={`flex-1 py-2 text-xs font-medium rounded transition-colors ${filter === f.value ? 'bg-white/80 text-ink border border-border-theme shadow-sm' : 'text-ink-muted hover:text-ink'}`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="pb-24">
         {isLoading ? (
           <div className="text-center py-10 text-ink-muted">Loading places...</div>
         ) : venues?.length === 0 ? (
           <div className="text-center py-10 text-ink-muted">No places found.</div>
         ) : isSearching ? (
           <div className="space-y-4">
-            {activeVenues.map(venue => <VenueRow key={venue.id} venue={venue} />)}
+            {filteredActive.map(venue => <VenueRow key={venue.id} venue={venue} />)}
+          </div>
+        ) : filter === "all" ? (
+          <div className="space-y-8">
+            <section>
+              <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-3">
+                All <span className="text-border-theme font-normal">({filteredActive.length})</span>
+              </h2>
+              <div className="space-y-4">
+                {[...filteredActive].sort((a, b) => a.name.localeCompare(b.name)).map(venue => <VenueRow key={venue.id} venue={venue} />)}
+              </div>
+            </section>
           </div>
         ) : (
           <div className="space-y-8">
@@ -80,17 +115,6 @@ export default function Places() {
                 </section>
               );
             })}
-
-            {closedVenues.length > 0 && (
-              <section>
-                <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-3">
-                  Closed & Temporarily Closed <span className="text-border-theme font-normal">({closedVenues.length})</span>
-                </h2>
-                <div className="space-y-4">
-                  {closedVenues.map(venue => <VenueRow key={venue.id} venue={venue} />)}
-                </div>
-              </section>
-            )}
           </div>
         )}
       </div>

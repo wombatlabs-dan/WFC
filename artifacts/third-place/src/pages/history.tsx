@@ -14,7 +14,7 @@ export default function History() {
   );
 
   return (
-    <div className="p-4 pt-6 h-full flex flex-col">
+    <div className="p-4 pt-16 h-full flex flex-col">
       <div className="mb-6">
         <h1 className="font-display text-3xl text-ink mb-2">History</h1>
         {stats && (

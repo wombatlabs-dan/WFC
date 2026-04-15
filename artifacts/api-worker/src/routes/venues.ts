@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { createDb } from "@workspace/db";
 import { venuesTable, visitsTable } from "@workspace/db";
-import { eq, sql, and, like, or } from "drizzle-orm";
+import { eq, sql, and, ilike, or } from "drizzle-orm";
 import {
   ListVenuesQueryParams,
   GetVenueParams,
@@ -42,8 +42,8 @@ app.get("/venues", async (c) => {
     if (search) {
       conditions.push(
         or(
-          like(venuesTable.name, `%${search}%`),
-          like(venuesTable.neighborhood, `%${search}%`),
+          ilike(venuesTable.name, `%${search}%`),
+          ilike(venuesTable.neighborhood, `%${search}%`),
         )!,
       );
     }

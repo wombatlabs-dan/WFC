@@ -57,23 +57,19 @@ export default function Today() {
   };
 
   // Journal form state
-  const [workedOn, setWorkedOn] = useState("");
-  const [accomplished, setAccomplished] = useState("");
-  const [whoSaw, setWhoSaw] = useState("");
+  const [notes, setNotes] = useState("");
   const [coffeeNotes, setCoffeeNotes] = useState("");
 
   const handleSaveJournal = () => {
     if (!currentVisitId) return;
     updateVisit.mutate({
       id: currentVisitId,
-      data: { workedOn, accomplished, whoSaw, coffeeNotes }
+      data: { workedOn: notes, coffeeNotes }
     }, {
       onSuccess: () => {
         // Reset state
         setAppState("randomizer");
-        setWorkedOn("");
-        setAccomplished("");
-        setWhoSaw("");
+        setNotes("");
         setCoffeeNotes("");
         queryClient.invalidateQueries({ queryKey: ["/api/visits"] });
       }
@@ -85,7 +81,7 @@ export default function Today() {
   };
 
   return (
-    <div className="p-4 pt-8 h-full flex flex-col max-w-md mx-auto relative min-h-full">
+    <div className="p-4 pt-16 h-full flex flex-col max-w-md mx-auto relative min-h-full">
       <AnimatePresence mode="wait">
         {appState === "randomizer" && (
           <motion.div 
@@ -249,14 +245,13 @@ export default function Today() {
               </div>
 
               <div className="flex flex-col items-center gap-4">
-                <button 
+                <button
                   onClick={handleImHere}
                   disabled={createVisit.isPending}
-                  className="w-full font-display text-xl py-4 rounded-xl shadow-md transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2"
-                  style={{ backgroundColor: '#2C1810', color: '#F5F0E8' }}
+                  className="w-full font-display text-xl py-3 rounded-xl shadow-sm transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2 bg-white/60 border border-white/50 text-ink hover:bg-white/80"
                 >
                   {createVisit.isPending ? "Logging..." : "I'm here — log my visit"}
-                  {!createVisit.isPending && <Check className="w-5 h-5" />}
+                  {!createVisit.isPending && <Check className="w-5 h-5 text-ink" />}
                 </button>
                 
                 <button onClick={() => setAppState("randomizer")} className="text-sm text-ink-muted hover:text-ink underline underline-offset-4 decoration-ink-muted/30">
@@ -268,65 +263,48 @@ export default function Today() {
         )}
 
         {appState === "journal" && venue && (
-          <motion.div 
+          <motion.div
             key="journal"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex-1 flex flex-col py-6"
           >
-            <div className="bg-white/30 backdrop-blur-md rounded-2xl p-5 border border-white/40 shadow-lg flex flex-col gap-5 flex-1">
+            <div className="bg-white/15 backdrop-blur-sm rounded-2xl p-5 border border-white/25 shadow-lg flex flex-col gap-5">
               <div className="text-center">
                 <h1 className="font-display text-2xl text-ink">Journal Entry</h1>
                 <p className="text-sm text-ink-muted">{venue.name}</p>
               </div>
 
-              <div className="space-y-4 flex-1 overflow-y-auto pb-20">
+              <div className="space-y-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">What I worked on</label>
-                  <textarea 
-                    value={workedOn} onChange={e => setWorkedOn(e.target.value)}
-                    placeholder="Projects, tasks, client work..."
-                    className="w-full bg-white/60 border border-white/50 rounded-xl p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent/50 placeholder:text-ink-muted/60"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">What I accomplished</label>
-                  <textarea 
-                    value={accomplished} onChange={e => setAccomplished(e.target.value)}
-                    placeholder="Shipped, decided, made progress on..."
-                    className="w-full bg-white/60 border border-white/50 rounded-xl p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent/50 placeholder:text-ink-muted/60"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">Who I saw</label>
-                  <textarea 
-                    value={whoSaw} onChange={e => setWhoSaw(e.target.value)}
-                    placeholder="Notable conversations, chance encounters..."
-                    className="w-full bg-white/60 border border-white/50 rounded-xl p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent/50 placeholder:text-ink-muted/60"
+                  <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">Notes</label>
+                  <textarea
+                    value={notes} onChange={e => setNotes(e.target.value)}
+                    placeholder="What I worked on, what I accomplished, who I saw..."
+                    className="w-full bg-white/60 border border-white/50 rounded-xl p-3 text-sm min-h-[180px] focus:outline-none focus:ring-1 focus:ring-accent/50 placeholder:text-ink-muted/60"
                   />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold uppercase tracking-wider text-ink-muted">How was the coffee?</label>
-                  <textarea 
+                  <textarea
                     value={coffeeNotes} onChange={e => setCoffeeNotes(e.target.value)}
                     placeholder="What you ordered, quality, anything memorable..."
-                    className="w-full bg-white/60 border border-white/50 rounded-xl p-3 text-sm min-h-[80px] focus:outline-none focus:ring-1 focus:ring-accent/50 placeholder:text-ink-muted/60"
+                    className="w-full bg-white/60 border border-white/50 rounded-xl p-3 text-sm min-h-[100px] focus:outline-none focus:ring-1 focus:ring-accent/50 placeholder:text-ink-muted/60"
                   />
                 </div>
+                <div className="flex flex-col gap-3 pt-2">
+                  <button
+                    onClick={handleSaveJournal}
+                    disabled={updateVisit.isPending}
+                    className="w-full bg-ink hover:bg-ink/90 text-surface font-medium py-3.5 rounded-xl transition-all flex items-center justify-center gap-2"
+                  >
+                    {updateVisit.isPending ? "Saving..." : "Save entry"}
+                  </button>
+                  <button onClick={handleSkipJournal} className="text-sm text-ink-muted hover:text-ink text-center py-1">
+                    Skip for now
+                  </button>
+                </div>
               </div>
-            </div>
-
-            <div className="mt-auto pt-4 bg-base border-t border-border-theme flex flex-col gap-4 fixed bottom-[env(safe-area-inset-bottom)] left-0 right-0 p-4 max-w-md mx-auto z-20 shadow-[0_-10px_20px_rgba(245,240,232,0.9)]">
-              <button 
-                onClick={handleSaveJournal}
-                disabled={updateVisit.isPending}
-                className="w-full bg-ink hover:bg-ink/90 text-surface font-medium py-3.5 rounded-md transition-all flex items-center justify-center gap-2"
-              >
-                {updateVisit.isPending ? "Saving..." : "Save entry"}
-              </button>
-              <button onClick={handleSkipJournal} className="text-sm text-ink-muted hover:text-ink text-center pb-2">
-                Skip for now
-              </button>
             </div>
           </motion.div>
         )}

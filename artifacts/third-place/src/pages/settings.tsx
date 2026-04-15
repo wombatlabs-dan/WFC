@@ -57,7 +57,7 @@ export default function Settings() {
   };
 
   return (
-    <div className="p-4 pt-6 h-full flex flex-col overflow-y-auto">
+    <div className="p-4 pt-16 h-full flex flex-col overflow-y-auto">
       <div className="mb-6">
         <h1 className="font-display text-3xl text-ink flex items-center gap-3">
           <SettingsIcon className="w-6 h-6" /> Settings

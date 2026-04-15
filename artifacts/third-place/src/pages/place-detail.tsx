@@ -68,7 +68,7 @@ export default function PlaceDetail() {
   if (!venue) return <div className="p-8 text-center text-ink-muted">Venue not found.</div>;
 
   return (
-    <div className="p-4 pt-6 h-full flex flex-col overflow-y-auto">
+    <div className="p-4 pt-16 h-full flex flex-col overflow-y-auto">
       <div className="mb-6 flex items-center justify-between">
         <Link href="/places" className="flex items-center gap-1 text-ink-muted hover:text-ink text-sm font-medium">
           <ArrowLeft className="w-4 h-4" /> Back to places

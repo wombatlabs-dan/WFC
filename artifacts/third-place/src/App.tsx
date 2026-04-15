@@ -12,7 +12,7 @@ import History from "@/pages/history";
 import Places from "@/pages/places";
 import PlaceDetail from "@/pages/place-detail";
 import NewPlaces from "@/pages/new";
-import Settings from "@/pages/settings";
+import About from "@/pages/about";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,7 +32,7 @@ function Router() {
         <Route path="/places" component={Places} />
         <Route path="/places/:id" component={PlaceDetail} />
         <Route path="/new" component={NewPlaces} />
-        <Route path="/settings" component={Settings} />
+        <Route path="/about" component={About} />
         <Route component={NotFound} />
       </Switch>
     </Layout>

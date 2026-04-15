@@ -48,7 +48,7 @@ export function VisitCard({ visit, expanded = false }: VisitCardProps) {
             {visit.workedOn && (
               <div>
                 <h4 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-1 flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5" /> What I worked on
+                  <Calendar className="w-3.5 h-3.5" /> Notes
                 </h4>
                 <p className="text-sm text-ink whitespace-pre-wrap">{visit.workedOn}</p>
               </div>

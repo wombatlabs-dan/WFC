@@ -44,7 +44,7 @@ export default function NewPlaces() {
     ?.slice(0, 10);
 
   return (
-    <div className="p-4 pt-6 h-full flex flex-col overflow-y-auto">
+    <div className="p-4 pt-16 h-full flex flex-col overflow-y-auto">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-display text-3xl text-ink">New</h1>
         <button 
