@@ -316,7 +316,7 @@ export default function Today() {
               </div>
             </div>
 
-            <div className="mt-auto pt-4 bg-base border-t border-border-theme flex flex-col gap-4 fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 p-4 max-w-md mx-auto z-20 shadow-[0_-10px_20px_rgba(245,240,232,0.9)]">
+            <div className="mt-auto pt-4 bg-base border-t border-border-theme flex flex-col gap-4 fixed bottom-[env(safe-area-inset-bottom)] left-0 right-0 p-4 max-w-md mx-auto z-20 shadow-[0_-10px_20px_rgba(245,240,232,0.9)]">
               <button 
                 onClick={handleSaveJournal}
                 disabled={updateVisit.isPending}
