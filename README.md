@@ -1,6 +1,6 @@
 # ☕ WFC — Work From Coffeehouse
 
-> **Your personal coffee shop operating system.** Spin the wheel. Log the visit. Build the habit.
+> **A personal tool for people who work from cafés intentionally.** 
 
 **Built by [Dan Harrison](https://github.com/wombatlabs-dan) · WombatLabs · San Francisco, CA**
 
