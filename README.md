@@ -4,7 +4,7 @@
 
 **Built by [Dan Harrison](https://github.com/wombatlabs-dan) · WombatLabs · San Francisco, CA**
 
-🌐 [Live App](https://thirdplace.pages.dev/) &nbsp;·&nbsp; 📄 [One-Pager](docs/wfc-one-pager.md) &nbsp;·&nbsp; 📋 [PRD](docs/wfc-prd.md)
+🌐 [Live App](https://third-place.pages.dev/) &nbsp;·&nbsp; 📄 [One-Pager](docs/wfc-one-pager.md) &nbsp;·&nbsp; 📋 [PRD](docs/wfc-prd.md)
 
 ---
 
