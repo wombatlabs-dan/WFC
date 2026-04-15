@@ -1,0 +1,14 @@
+name = "third-place-api"
+main = "src/index.ts"
+compatibility_date = "2025-04-14"
+compatibility_flags = ["nodejs_compat"]
+
+# Scheduled cron triggers — weekly discovery + validation
+[triggers]
+crons = ["0 9 * * 1", "0 10 * * 1"]
+
+# Secrets (set via `wrangler secret put`):
+#   DATABASE_URL
+#   CRON_SECRET
+#   GOOGLE_PLACES_API_KEY
+#   BRAVE_SEARCH_API_KEY

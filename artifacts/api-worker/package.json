@@ -1,0 +1,24 @@
+{
+  "name": "@workspace/api-worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --local",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "@workspace/api-zod": "workspace:*",
+    "@workspace/db": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "hono": "^4.7.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250410.0",
+    "@types/node": "catalog:",
+    "typescript": "~5.9.2",
+    "wrangler": "^4.10.0"
+  }
+}
