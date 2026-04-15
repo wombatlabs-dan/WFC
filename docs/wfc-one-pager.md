@@ -1,4 +1,4 @@
-# Third Place
+# Work From Coffeehouse
 ### Your personal coffee shop operating system
 
 *One-pager — April 14, 2026*
@@ -13,7 +13,7 @@
 
 ## The Solution
 
-Third Place is a personal coffee shop operating system for people who work from cafés intentionally. It knows your taste, remembers everywhere you've been, spins the wheel when you can't decide, and keeps finding new spots that match your preferences — so you can focus on the work, not the logistics of getting there.
+Work From Coffeehouse is a personal coffee shop operating system for people who work from cafés intentionally. It knows your taste, remembers everywhere you've been, spins the wheel when you can't decide, and keeps finding new spots that match your preferences — so you can focus on the work, not the logistics of getting there.
 
 ---
 
@@ -46,7 +46,7 @@ Third Place is a personal coffee shop operating system for people who work from 
 | Nomad Work / Nomadable | Digital nomad venue finder | Built for city-hoppers, not locals building a practice |
 | Notes / Spreadsheets | Flexible personal tracking | No randomization, no discovery, no habit loop |
 
-**The gap nobody fills:** taste-aware personalization with memory. Every competitor treats all venues as equal. Third Place knows *you*.
+**The gap nobody fills:** taste-aware personalization with memory. Every competitor treats all venues as equal. Work From Coffeehouse knows *you*.
 
 **Single differentiator:** Your preferences + your history + smart rotation = a tool built for locals, not tourists.
 
