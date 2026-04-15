@@ -230,7 +230,7 @@ CREATE TABLE discovery_queue (
 
 ## 9. Open Questions
 
-1. **Name:** "Third Place" is conceptually strong but has prior use (Starbucks used it heavily). Check trademark/domain availability before committing. [addressed].
+1. **Name:** "Third Place" is conceptually strong but has prior use (Starbucks used it heavily). Check trademark/domain availability before committing. [addressed --name changed to "Work From Coffeehouse"].
 2. **Brave Search API quality:** How good is it at surfacing new SF café openings vs. generic results? Test before relying on it for discovery.
 3. **Google Places API cost:** At weekly validation runs for 35 venues, cost should be negligible — but confirm pricing tier before launch.
 4. **Journal friction:** Will Dan actually fill in 4 fields after every visit? Consider making 1 field (coffee notes) the only required one, with the rest optional and collapsible.
