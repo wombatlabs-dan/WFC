@@ -95,7 +95,7 @@ export default function Today() {
             exit={{ opacity: 0, y: -20 }}
             className="flex-1 flex flex-col"
           >
-            <div className="mb-8 bg-white/30 backdrop-blur-md rounded-2xl p-6 border border-white/40 shadow-lg">
+            <div className="mb-2 bg-white/30 backdrop-blur-md rounded-2xl p-6 border border-white/40 shadow-lg">
               <h1 className="font-display text-3xl text-ink mb-6 text-center">Where to today?</h1>
               
               <div className="space-y-4">
@@ -127,11 +127,11 @@ export default function Today() {
               </div>
             </div>
 
-            <div className="mt-4">
+            <div className="mt-2 px-6">
               <button
                 onClick={handleRandomize}
                 disabled={isFetching}
-                className="w-full font-display text-2xl py-5 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 flex items-center justify-center gap-2"
+                className="w-full font-display text-2xl py-2.5 rounded-2xl transition-all active:scale-[0.98] disabled:opacity-70 disabled:active:scale-100 flex items-center justify-center gap-2"
                 style={{ backgroundColor: '#ffffff', color: '#2C1810', boxShadow: '0 4px 24px rgba(44,24,16,0.12)' }}
               >
                 {isFetching ? "Finding a spot..." : "Take me somewhere"}
