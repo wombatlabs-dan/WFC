@@ -226,40 +226,43 @@ export default function Today() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
-            className="flex-1 flex flex-col justify-center py-12"
+            className="flex-1 flex flex-col justify-center"
           >
-            <div className="text-center mb-10">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-ink-muted mb-4">Heading to</h2>
-              <h1 className="font-display text-4xl text-ink mb-3">{venue.name}</h1>
-              {venue.address && <p className="text-ink/80 max-w-xs mx-auto">{venue.address}</p>}
-            </div>
+            <div className="bg-white/30 backdrop-blur-md rounded-2xl p-6 border border-white/40 shadow-lg flex flex-col gap-6">
+              <div className="text-center">
+                <h2 className="text-sm font-bold uppercase tracking-widest text-ink-muted mb-3">Heading to</h2>
+                <h1 className="font-display text-4xl text-ink mb-2">{venue.name}</h1>
+                {venue.address && <p className="text-ink/80 text-sm">{venue.address}</p>}
+              </div>
 
-            <div className="space-y-4 max-w-sm mx-auto w-full mb-12">
-              {venue.mapsUrl && (
-                <a href={venue.mapsUrl} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 py-3 bg-surface border border-border-theme rounded text-ink font-medium hover:bg-base transition-colors">
-                  <Navigation className="w-4 h-4" /> Open in Maps
-                </a>
-              )}
-              {venue.sourceUrl && (
-                <a href={venue.sourceUrl} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 py-3 bg-surface border border-border-theme rounded text-ink font-medium hover:bg-base transition-colors">
-                  <ExternalLink className="w-4 h-4" /> Read article
-                </a>
-              )}
-            </div>
+              <div className="space-y-3">
+                {venue.mapsUrl && (
+                  <a href={venue.mapsUrl} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 py-3 bg-white/60 border border-white/50 rounded-xl text-ink font-medium hover:bg-white/80 transition-colors shadow-sm">
+                    <Navigation className="w-4 h-4" /> Open in Maps
+                  </a>
+                )}
+                {venue.sourceUrl && (
+                  <a href={venue.sourceUrl} target="_blank" rel="noopener noreferrer" className="w-full flex items-center justify-center gap-2 py-3 bg-white/60 border border-white/50 rounded-xl text-ink font-medium hover:bg-white/80 transition-colors shadow-sm">
+                    <ExternalLink className="w-4 h-4" /> Read article
+                  </a>
+                )}
+              </div>
 
-            <div className="mt-auto flex flex-col items-center gap-6">
-              <button 
-                onClick={handleImHere}
-                disabled={createVisit.isPending}
-                className="w-full bg-accent hover:bg-accent-hover text-surface font-display text-xl py-4 rounded-md shadow-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-              >
-                {createVisit.isPending ? "Logging..." : "I'm here — log my visit"}
-                {!createVisit.isPending && <Check className="w-5 h-5" />}
-              </button>
-              
-              <button onClick={() => setAppState("randomizer")} className="text-sm text-ink-muted hover:text-ink underline underline-offset-4 decoration-ink-muted/30">
-                Actually, let me pick again
-              </button>
+              <div className="flex flex-col items-center gap-4">
+                <button 
+                  onClick={handleImHere}
+                  disabled={createVisit.isPending}
+                  className="w-full font-display text-xl py-4 rounded-xl shadow-md transition-all active:scale-[0.98] disabled:opacity-70 flex items-center justify-center gap-2"
+                  style={{ backgroundColor: '#2C1810', color: '#F5F0E8' }}
+                >
+                  {createVisit.isPending ? "Logging..." : "I'm here — log my visit"}
+                  {!createVisit.isPending && <Check className="w-5 h-5" />}
+                </button>
+                
+                <button onClick={() => setAppState("randomizer")} className="text-sm text-ink-muted hover:text-ink underline underline-offset-4 decoration-ink-muted/30">
+                  Actually, let me pick again
+                </button>
+              </div>
             </div>
           </motion.div>
         )}
