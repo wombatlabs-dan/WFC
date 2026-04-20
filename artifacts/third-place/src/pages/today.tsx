@@ -171,7 +171,7 @@ export default function Today() {
                   </motion.div>
 
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="flex flex-wrap gap-2">
-                    {venue.tags.slice(0, 3).map(tag => (
+                    {venue.tags.map(tag => (
                       <span key={tag} className="px-2 py-0.5 bg-sage-light text-sage text-xs rounded font-medium border border-sage/20">{tag}</span>
                     ))}
                   </motion.div>
@@ -201,6 +201,12 @@ export default function Today() {
                       )}
                     </div>
                   </motion.div>
+
+                  {venue.notes && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.27 }} className="text-xs text-ink-muted bg-base/60 rounded-lg px-3 py-2 border border-border-theme/40">
+                      {venue.notes}
+                    </motion.div>
+                  )}
 
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex gap-3 mt-2 relative z-10">
                     <button onClick={handleRandomize} className="flex-1 py-3 text-sm font-medium text-ink bg-surface border border-border-theme rounded hover:bg-base transition-colors">

@@ -27,7 +27,6 @@ export default function Places() {
   const { data: venues, isLoading } = useListVenues({ search: search || undefined });
 
   const activeVenues = venues?.filter(v => v.status === "active" || v.status === "unverified") || [];
-  const closedVenues = venues?.filter(v => v.status === "closed" || v.status === "temporarily-closed") || [];
 
   const filteredActive = filter === "all"
     ? activeVenues
@@ -89,15 +88,11 @@ export default function Places() {
             {filteredActive.map(venue => <VenueRow key={venue.id} venue={venue} />)}
           </div>
         ) : filter === "all" ? (
-          <div className="space-y-8">
-            <section>
-              <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-3">
-                All <span className="text-border-theme font-normal">({filteredActive.length})</span>
-              </h2>
-              <div className="space-y-4">
-                {[...filteredActive].sort((a, b) => a.name.localeCompare(b.name)).map(venue => <VenueRow key={venue.id} venue={venue} />)}
-              </div>
-            </section>
+          <div className="space-y-4">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-ink-muted mb-3">
+              All <span className="text-border-theme font-normal">({filteredActive.length})</span>
+            </h2>
+            {[...filteredActive].sort((a, b) => a.name.localeCompare(b.name)).map(venue => <VenueRow key={venue.id} venue={venue} />)}
           </div>
         ) : (
           <div className="space-y-8">
@@ -110,7 +105,7 @@ export default function Places() {
                     {CATEGORY_LABELS[cat]} <span className="text-border-theme font-normal">({group.length})</span>
                   </h2>
                   <div className="space-y-4">
-                    {group.map(venue => <VenueRow key={venue.id} venue={venue} />)}
+                    {[...group].sort((a, b) => a.name.localeCompare(b.name)).map(venue => <VenueRow key={venue.id} venue={venue} />)}
                   </div>
                 </section>
               );
