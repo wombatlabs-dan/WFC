@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useListVenues, Venue } from "@workspace/api-client-react";
 import { VenueCard } from "@/components/venues/VenueCard";
 import { useLocation } from "wouter";
-import { Search } from "lucide-react";
+import { Search, MapPin, ChevronDown } from "lucide-react";
 
 const CATEGORY_LABELS: Record<string, string> = {
   "coffee-only": "Coffee Only",
@@ -20,17 +20,30 @@ const FILTERS = [
   { value: "sandwich-lunch", label: "Lunch Spot" },
 ];
 
+const NEIGHBORHOODS = [
+  "Anywhere in SF", "Bernal Heights", "Castro", "Cow Hollow", "Dogpatch",
+  "Excelsior", "Financial District", "Haight", "Hayes Valley", "Inner Richmond",
+  "Inner Sunset", "Lower Haight", "Marina", "Mission", "NoPa", "Nob Hill",
+  "Noe Valley", "North Beach", "Outer Richmond", "Outer Sunset", "Pacific Heights",
+  "Potrero Hill", "Russian Hill", "SoMa", "Tenderloin", "Union Square"
+];
+
 export default function Places() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
+  const [neighborhood, setNeighborhood] = useState("Anywhere in SF");
   const [, navigate] = useLocation();
   const { data: venues, isLoading } = useListVenues({ search: search || undefined });
 
   const activeVenues = venues?.filter(v => v.status === "active" || v.status === "unverified") || [];
 
-  const filteredActive = filter === "all"
+  const neighborhoodFiltered = neighborhood === "Anywhere in SF"
     ? activeVenues
-    : activeVenues.filter(v => v.category === filter);
+    : activeVenues.filter(v => v.neighborhood === neighborhood);
+
+  const filteredActive = filter === "all"
+    ? neighborhoodFiltered
+    : neighborhoodFiltered.filter(v => v.category === filter);
 
   const byCategory = CATEGORY_ORDER.reduce<Record<string, Venue[]>>((acc, cat) => {
     acc[cat] = filteredActive.filter(v => v.category === cat);
@@ -53,17 +66,29 @@ export default function Places() {
         <h1 className="font-display text-3xl text-ink mb-2">Places</h1>
       </div>
 
-      <div className="relative mb-3">
-        <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+      <div className="flex items-stretch bg-surface border border-border-theme rounded-md mb-3 overflow-hidden focus-within:ring-1 focus-within:ring-accent">
+        <div className="flex items-center pl-3 pointer-events-none flex-shrink-0">
           <Search className="h-4 w-4 text-ink-muted" />
         </div>
         <input
           type="text"
-          placeholder="Search places by name or neighborhood..."
+          placeholder="Search places..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2.5 bg-surface border border-border-theme rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-accent text-ink placeholder:text-ink-muted/60"
+          className="flex-1 min-w-0 px-2 py-2.5 bg-transparent text-sm focus:outline-none text-ink placeholder:text-ink-muted/60"
         />
+        <div className="w-px bg-border-theme self-stretch flex-shrink-0" />
+        <div className="relative flex items-center flex-shrink-0">
+          <MapPin className={`absolute left-3 h-3.5 w-3.5 pointer-events-none ${neighborhood !== "Anywhere in SF" ? "text-accent" : "text-ink-muted"}`} />
+          <select
+            value={neighborhood}
+            onChange={(e) => setNeighborhood(e.target.value)}
+            className="appearance-none bg-transparent pl-8 pr-7 py-2.5 text-xs font-semibold text-ink focus:outline-none cursor-pointer"
+          >
+            {NEIGHBORHOODS.map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
+          <ChevronDown className="absolute right-2 h-3 w-3 text-ink-muted pointer-events-none" />
+        </div>
       </div>
 
       <div className="flex p-1 bg-surface border border-border-theme rounded-md shadow-sm mb-6">
@@ -81,7 +106,7 @@ export default function Places() {
       <div className="pb-24">
         {isLoading ? (
           <div className="text-center py-10 text-ink-muted">Loading places...</div>
-        ) : venues?.length === 0 ? (
+        ) : filteredActive.length === 0 ? (
           <div className="text-center py-10 text-ink-muted">No places found.</div>
         ) : isSearching ? (
           <div className="space-y-4">
