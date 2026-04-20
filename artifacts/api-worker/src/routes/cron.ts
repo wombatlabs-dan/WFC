@@ -1,8 +1,13 @@
 import { Hono } from "hono";
 import { createDb } from "@workspace/db";
 import { venuesTable, discoveryQueueTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { Env } from "../index";
+
+// Free-tier Workers cap each invocation at 50 subrequests.
+// Each venue costs 1 Places fetch + 1 DB update = 2 subrequests,
+// plus 1 initial SELECT. 20 venues = 41 subrequests, safe headroom.
+const VALIDATE_CHUNK_SIZE = 20;
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -113,13 +118,19 @@ app.post("/cron/validate", async (c) => {
     }
 
     const db = createDb(c.env.DATABASE_URL);
+
+    // Oldest-checked (including never-checked) venues go first.
+    // With the cron running daily, a 66-venue database is fully covered every ~4 days.
     const activeVenues = await db
       .select()
       .from(venuesTable)
-      .where(eq(venuesTable.status, "active"));
+      .where(eq(venuesTable.status, "active"))
+      .orderBy(sql`${venuesTable.lastValidatedAt} ASC NULLS FIRST`)
+      .limit(VALIDATE_CHUNK_SIZE);
 
     let validated = 0;
     let updated = 0;
+    const now = new Date().toISOString();
 
     for (const venue of activeVenues) {
       if (!venue.address && !venue.name) continue;
@@ -128,40 +139,48 @@ app.post("/cron/validate", async (c) => {
         `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${query}&inputtype=textquery&fields=business_status,opening_hours,name&key=${apiKey}`,
       );
 
+      // Collect any status/hours changes alongside lastValidatedAt so we issue
+      // exactly one UPDATE per venue (keeps us under the subrequest budget).
+      const patch: Partial<typeof venuesTable.$inferInsert> = { lastValidatedAt: now };
+      let statusChanged = false;
+
       if (!response.ok) {
         console.error("Google Places API error", response.status, "for venue", venue.id);
-        continue;
-      }
+      } else {
+        const data = (await response.json()) as {
+          candidates?: Array<{
+            business_status?: string;
+            opening_hours?: { weekday_text?: string[] };
+          }>;
+        };
+        const candidate = data.candidates?.[0];
 
-      const data = (await response.json()) as {
-        candidates?: Array<{
-          business_status?: string;
-          opening_hours?: { weekday_text?: string[] };
-        }>;
-      };
-      const candidate = data.candidates?.[0];
-
-      if (!candidate) {
-        await db.update(venuesTable).set({ status: "unverified" }).where(eq(venuesTable.id, venue.id));
-        updated++;
-      } else if (candidate.business_status === "CLOSED_PERMANENTLY") {
-        await db.update(venuesTable).set({ status: "closed" }).where(eq(venuesTable.id, venue.id));
-        updated++;
-      } else if (candidate.opening_hours?.weekday_text?.length) {
-        const hours = candidate.opening_hours.weekday_text.join(", ");
-        if (hours !== venue.hours) {
-          await db.update(venuesTable).set({ hours }).where(eq(venuesTable.id, venue.id));
-          updated++;
+        if (!candidate) {
+          patch.status = "unverified";
+          statusChanged = true;
+        } else if (candidate.business_status === "CLOSED_PERMANENTLY") {
+          patch.status = "closed";
+          statusChanged = true;
+        } else if (candidate.opening_hours?.weekday_text?.length) {
+          const hours = candidate.opening_hours.weekday_text.join(", ");
+          if (hours !== venue.hours) {
+            patch.hours = hours;
+            statusChanged = true;
+          }
         }
       }
+
+      await db.update(venuesTable).set(patch).where(eq(venuesTable.id, venue.id));
+      if (statusChanged) updated++;
       validated++;
     }
 
     return c.json({
       success: true,
-      message: `Validation complete. Checked ${validated} venues, updated ${updated}.`,
+      message: `Validation complete. Checked ${validated} venues, updated ${updated}. (chunk size ${VALIDATE_CHUNK_SIZE})`,
       validated,
       updated,
+      chunkSize: VALIDATE_CHUNK_SIZE,
     });
   } catch (err) {
     console.error("Error running validation cron", err);

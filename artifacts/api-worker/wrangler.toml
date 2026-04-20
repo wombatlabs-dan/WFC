@@ -3,9 +3,13 @@ main = "src/index.ts"
 compatibility_date = "2025-04-14"
 compatibility_flags = ["nodejs_compat"]
 
-# Scheduled cron triggers — weekly discovery + validation
+# Scheduled cron triggers
+#   - Discovery: weekly, Monday 09:00 UTC
+#   - Validation: daily at 10:00 UTC. Each run validates a chunk (see
+#     VALIDATE_CHUNK_SIZE in src/routes/cron.ts) so we stay under the
+#     Free plan's 50-subrequest-per-invocation cap.
 [triggers]
-crons = ["0 9 * * 1", "0 10 * * 1"]
+crons = ["0 9 * * 1", "0 10 * * *"]
 
 # Secrets (set via `wrangler secret put`):
 #   DATABASE_URL

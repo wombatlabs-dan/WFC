@@ -18,6 +18,7 @@ export const venuesTable = pgTable("venues", {
   dateAdded: text("date_added"),
   visitCount: integer("visit_count").default(0),
   lastVisited: text("last_visited"),
+  lastValidatedAt: text("last_validated_at"),
   notes: text("notes"),
 });
 
