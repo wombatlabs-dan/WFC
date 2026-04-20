@@ -5,9 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, Navigation, ExternalLink, Coffee, Check, ArrowRight, X } from "lucide-react";
 
 const NEIGHBORHOODS = [
-  "Anywhere in SF", "Castro", "Dogpatch", "Financial District", "Haight", 
-  "Hayes Valley", "Mission", "NoPa", "North Beach", "Outer Richmond", 
-  "Outer Sunset", "Pacific Heights", "Russian Hill", "SoMa", "Union Square"
+  "Anywhere in SF", "Bernal Heights", "Castro", "Cow Hollow", "Dogpatch",
+  "Excelsior", "Financial District", "Haight", "Hayes Valley", "Inner Richmond",
+  "Inner Sunset", "Lower Haight", "Marina", "Mission", "NoPa", "Nob Hill",
+  "Noe Valley", "North Beach", "Outer Richmond", "Outer Sunset", "Pacific Heights",
+  "Potrero Hill", "Russian Hill", "SoMa", "Tenderloin", "Union Square"
 ];
 
 const MODES: { value: GetRandomVenueMode, label: string }[] = [
